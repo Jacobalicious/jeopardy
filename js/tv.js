@@ -8,6 +8,8 @@
 const CAST_MODE = new URLSearchParams(location.search).has("cast");
 
 let view = null;
+let roomCode = "";
+let roomUp = false;
 let lastMainKey = "";
 let lastScores = {};
 let coinStarts = {}; // coin id -> when this screen first saw it
@@ -56,6 +58,7 @@ if (CAST_MODE) {
   document.head.appendChild(s);
   render();
 } else {
+  startRoom();
   startEl.addEventListener("click", () => {
     Sfx.unlock();
     goFullscreen();
@@ -69,6 +72,38 @@ if (CAST_MODE) {
   render();
 }
 
+// ---------- Room code (any TV with a browser) ----------
+
+function startRoom() {
+  try {
+    roomCode = cleanRoomCode(localStorage.getItem("jeopardy-tv-room"));
+  } catch (e) {}
+  if (roomCode.length !== 4) roomCode = newRoomCode();
+  try {
+    localStorage.setItem("jeopardy-tv-room", roomCode);
+  } catch (e) {}
+  const relay = Relay(roomCode, {
+    subscribe: ["view", "event"],
+    onMessage: (suffix, data) => {
+      if (data.t === "ping") relay.send("hello", { t: "hello" });
+      else handle(data);
+    },
+    onStatus: (up) => {
+      roomUp = up;
+      if (up) relay.send("hello", { t: "hello" });
+      showRoomCode();
+    },
+  });
+  showRoomCode();
+}
+
+function showRoomCode() {
+  const text = roomCode ? `Room code <b>${roomCode}</b>` + (roomUp ? "" : " (connecting...)") : "";
+  document.querySelectorAll(".room-slot").forEach((el) => (el.innerHTML = text));
+  const corner = document.getElementById("roomCorner");
+  if (corner) corner.innerHTML = roomCode ? "Room " + roomCode : "";
+}
+
 function goFullscreen() {
   try {
     document.documentElement.requestFullscreen();
@@ -77,9 +112,12 @@ function goFullscreen() {
 
 function render() {
   if (!view) {
-    main.innerHTML = `<div class="splash"><h1>Brain Damage Jeopardy</h1><h2>${
-      CAST_MODE ? "Connected. Waiting for the host..." : "Waiting for the host screen..."
-    }</h2></div>`;
+    main.innerHTML = CAST_MODE
+      ? `<div class="splash"><h1>Brain Damage Jeopardy</h1><h2>Connected. Waiting for the host...</h2></div>`
+      : `<div class="splash"><h1>Brain Damage Jeopardy</h1>
+          <div class="room-big room-slot"></div>
+          <h2>On the host phone, type this code under "Connect a TV"</h2></div>`;
+    showRoomCode();
     return;
   }
   renderScores();

@@ -126,10 +126,71 @@ window.__onGCastApiAvailable = (ok, err) => {
 function sendView() {
   const view = buildView();
   Local.send({ t: "view", view });
-  if (Cast.session()) Cast.send({ t: "view", view: castSafe(view) });
+  if (Cast.session()) Cast.send({ t: "view", view: chunked(view, (m) => Cast.send(m), castImgs) });
+  if (room && room.isConnected()) {
+    room.send("view", { t: "view", view: chunked(view, (m) => room.send("event", m), roomImgs) }, true);
+  }
 }
 
-// Cast messages are capped at 64KB, so uploaded pictures go over in pieces
+// ---------- Any TV, via room code ----------
+
+let room = null;
+const roomImgs = new Set();
+let roomTvSeen = false;
+
+function roomConnect(code) {
+  code = cleanRoomCode(code);
+  if (room) room.close();
+  room = null;
+  roomTvSeen = false;
+  if (code.length !== 4) return renderRoom();
+  try {
+    localStorage.setItem("jeopardy-room", code);
+  } catch (e) {}
+  room = Relay(code, {
+    subscribe: ["hello"],
+    onMessage: () => {
+      // The TV just opened or reconnected: send it everything again.
+      roomTvSeen = true;
+      roomImgs.clear();
+      sendView();
+      renderRoom();
+    },
+    onStatus: (up) => {
+      if (up) {
+        roomImgs.clear();
+        sendView();
+        room.send("event", { t: "ping" }); // ask the TV to say hello
+      }
+      renderRoom();
+    },
+  });
+  renderRoom();
+}
+
+function roomDisconnect() {
+  if (room) room.close();
+  room = null;
+  try {
+    localStorage.removeItem("jeopardy-room");
+  } catch (e) {}
+  renderRoom();
+}
+
+function renderRoom() {
+  const on = !!room;
+  $("roomForm").hidden = on;
+  $("roomOn").hidden = !on;
+  if (!on) return;
+  $("roomCodeShown").textContent = room.code;
+  $("roomState").textContent = !room.isConnected()
+    ? "Connecting..."
+    : roomTvSeen
+    ? "TV connected."
+    : "Connected. If the TV isn't showing the game yet, check the code matches.";
+}
+
+// Cast and relay messages are small, so uploaded pictures go over in pieces
 // first, and the view just refers to them by id.
 const castImgs = new Set();
 function hashStr(s) {
@@ -137,15 +198,15 @@ function hashStr(s) {
   for (let i = 0; i < s.length; i += 7) h = ((h << 5) + h + s.charCodeAt(i)) | 0;
   return (h >>> 0).toString(36) + s.length.toString(36);
 }
-function castSafe(view) {
+function chunked(view, send, sent) {
   const img = view.screen.img;
   if (!img || !img.startsWith("data:")) return view;
   const id = hashStr(img);
-  if (!castImgs.has(id)) {
+  if (!sent.has(id)) {
     const size = 48000;
     const total = Math.ceil(img.length / size);
-    for (let i = 0; i < total; i++) Cast.send({ t: "img", id, i, total, data: img.slice(i * size, (i + 1) * size) });
-    castImgs.add(id);
+    for (let i = 0; i < total; i++) send({ t: "img", id, i, total, data: img.slice(i * size, (i + 1) * size) });
+    sent.add(id);
   }
   return { ...view, screen: { ...view.screen, img: "cast:" + id } };
 }
@@ -153,6 +214,7 @@ function castSafe(view) {
 function sfx(name) {
   Local.send({ t: "sfx", name });
   Cast.send({ t: "sfx", name });
+  if (room) room.send("event", { t: "sfx", name });
   if ($("localSound").checked) Sfx.play(name);
 }
 
@@ -487,6 +549,32 @@ $("sounds").onclick = (e) => {
 document.querySelectorAll("[data-screen]").forEach((b) => (b.onclick = () => setScreen({ type: b.dataset.screen })));
 
 $("castBtn").onclick = castClick;
+
+$("resetQs").onclick = () => {
+  if (!confirm("Put the questions back to the built-in set? Edits made on this device are lost. Scores and teams stay.")) return;
+  resetQuestions();
+  reloadLibrary();
+};
+
+$("factory").onclick = () => {
+  if (!confirm("Factory reset? This erases EVERYTHING saved on this device: question edits, uploaded pictures, teams, scores and settings.")) return;
+  factoryReset();
+  location.replace(location.pathname);
+};
+$("roomBtn").onclick = () => roomConnect($("roomInput").value);
+$("roomInput").addEventListener("keydown", (e) => {
+  if (e.key === "Enter") roomConnect(e.target.value);
+});
+$("roomInput").addEventListener("input", (e) => {
+  const v = cleanRoomCode(e.target.value);
+  if (v !== e.target.value) e.target.value = v;
+});
+$("roomOff").onclick = roomDisconnect;
+
+// Phones pause pages in the background; catch the TV up when we come back.
+document.addEventListener("visibilitychange", () => {
+  if (!document.hidden) sendView();
+});
 $("coinBtn").onclick = () => flipCoin();
 $("backBtn").onclick = () => setScreen(game.screen.back || { type: "board" });
 $("backdrop").onclick = () => {};
@@ -616,6 +704,12 @@ try {
   }
   if (localStorage.getItem("jeopardy-local-sound")) $("localSound").checked = true;
 } catch (e) {}
+
+try {
+  const savedRoom = localStorage.getItem("jeopardy-room");
+  if (savedRoom) roomConnect(savedRoom);
+} catch (e) {}
+renderRoom();
 
 importFromHash().then((loaded) => {
   if (loaded) reloadLibrary();

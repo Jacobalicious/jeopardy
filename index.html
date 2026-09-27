@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="theme-color" content="#070b33" />
     <title>Jeopardy - Host</title>
-    <link rel="stylesheet" href="css/style.css?v=mujhniww" />
+    <link rel="stylesheet" href="css/style.css?v=mujhyqyt" />
   </head>
   <body class="host">
     <div class="host-top">
@@ -89,10 +89,27 @@
         </div>
 
         <div class="panel">
-          <h3>TV</h3>
-          <p class="hint" id="castStatus"></p>
-          <p class="hint">
-            Phone: tap <b>📺 Cast</b> at the top and pick your TV. Laptop: the <b>TV window</b> button works too.
+          <h3>Connect a TV</h3>
+          <div id="roomForm">
+            <p class="hint">
+              <b>Any TV:</b> open the TV's web browser and go to
+              <b class="url">jacobalicious.github.io/jeopardy/tv</b>. Type the 4-letter code it shows:
+            </p>
+            <div class="row">
+              <input type="text" id="roomInput" class="room-input" maxlength="4" placeholder="CODE" autocomplete="off" autocapitalize="characters" />
+              <button class="btn primary" id="roomBtn">Connect</button>
+            </div>
+          </div>
+          <div id="roomOn" hidden>
+            <div class="row">
+              <span class="room-code" id="roomCodeShown"></span>
+              <span class="hint" id="roomState"></span>
+              <span class="spacer"></span>
+              <button class="btn small ghost" id="roomOff">Disconnect</button>
+            </div>
+          </div>
+          <p class="hint" style="margin-top: 12px">
+            <b>Chromecast:</b> tap <b>📺 Cast</b> at the top. <span id="castStatus"></span>
           </p>
         </div>
 
@@ -110,14 +127,23 @@
         <div class="panel">
           <h3>Settings</h3>
           <label class="tv-status"><input type="checkbox" id="blur" /> Blur answers until I hover or tap them</label>
+          <div class="row" style="margin-top: 14px">
+            <button class="btn small" id="resetQs">Reset questions</button>
+            <button class="btn small bad" id="factory">Factory reset</button>
+          </div>
+          <p class="hint" style="margin-top: 8px">
+            <b>Reset questions</b> puts the questions back to the built-in set. <b>Factory reset</b> erases everything
+            saved on this device: questions, teams, scores and settings.
+          </p>
         </div>
       </div>
     </div>
 
-    <script src="js/config.js?v=mujhniww"></script>
-    <script src="js/default-library.js?v=mujhniww"></script>
-    <script src="js/shared.js?v=mujhniww"></script>
-    <script src="js/host.js?v=mujhniww"></script>
+    <script src="js/config.js?v=mujhyqyt"></script>
+    <script src="js/default-library.js?v=mujhyqyt"></script>
+    <script src="js/relay.js?v=mujhyqyt"></script>
+    <script src="js/shared.js?v=mujhyqyt"></script>
+    <script src="js/host.js?v=mujhyqyt"></script>
     <script src="https://www.gstatic.com/cv/js/sender/v1/cast_sender.js"></script>
   </body>
 </html>

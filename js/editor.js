@@ -610,10 +610,18 @@ $("importFile").onchange = async (e) => {
   e.target.value = "";
 };
 
+$("factoryBtn").onclick = () => {
+  if (!confirm("Factory reset? This erases EVERYTHING saved on this device: question edits, uploaded pictures, teams, scores and settings.")) return;
+  factoryReset();
+  location.replace(location.pathname);
+};
+
 $("resetBtn").onclick = () => {
   if (!confirm("Throw away all your edits and go back to the built-in questions?")) return;
-  lib = JSON.parse(JSON.stringify(window.DEFAULT_LIBRARY));
-  save();
+  // Removing the saved copy (rather than saving the defaults) means future
+  // updates to the built-in questions show up here too.
+  resetQuestions();
+  lib = loadLibrary();
   go({ type: "board" });
 };
 

@@ -94,6 +94,24 @@ function answerFor(game, clue) {
   return clue.a || "";
 }
 
+// ---------- Resets ----------
+
+// Questions back to the built-in set (everything else is kept).
+function resetQuestions() {
+  try {
+    localStorage.removeItem(LIB_KEY);
+  } catch (e) {}
+}
+
+// Erase everything this site has saved on this device.
+function factoryReset() {
+  try {
+    Object.keys(localStorage)
+      .filter((k) => k.startsWith("jeopardy-"))
+      .forEach((k) => localStorage.removeItem(k));
+  } catch (e) {}
+}
+
 // ---------- Share links (library squeezed into a URL) ----------
 
 // Uploaded pictures are far too big for a link, so they're left out of it.
