@@ -24,3 +24,9 @@ that browser; "Send to phone" makes a link that carries them to another device, 
 
 Sounds are synthesized in `js/shared.js`. Any of them can be replaced with a real audio
 file via `SOUND_FILES` in `js/config.js`.
+
+## Deploying
+
+Before committing changes to `js/` or `css/`, run `node tools/bump-version.js`. It stamps
+every script/style link with a new version so phones can't keep running cached copies,
+and pages that are still open reload themselves onto the new version.

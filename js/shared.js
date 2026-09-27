@@ -8,6 +8,24 @@ const MSG_KEY = "jeopardy-msg-v2";
 const CHANNEL = "jeopardy-sync-v2";
 const COIN_MS = 3200;
 
+// If a newer version of the site has been published, reload onto it.
+// (Browsers otherwise keep running cached copies for a while.)
+(function checkForUpdate() {
+  const me = document.querySelector('script[src*="shared.js"]');
+  const mine = me && (me.getAttribute("src").match(/[?&]v=(\w+)/) || [])[1];
+  if (!mine || !window.fetch) return;
+  fetch("version.json", { cache: "no-store" })
+    .then((r) => r.json())
+    .then((data) => {
+      if (!data.v || data.v === mine) return;
+      const params = new URLSearchParams(location.search);
+      if (params.get("fresh") === data.v) return; // already tried once
+      params.set("fresh", data.v);
+      location.replace(location.pathname + "?" + params.toString() + location.hash);
+    })
+    .catch(() => {});
+})();
+
 function uid() {
   return Math.random().toString(36).slice(2, 9);
 }
