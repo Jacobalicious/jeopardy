@@ -8,7 +8,7 @@ const path = require("path");
 const root = path.join(__dirname, "..");
 const version = Date.now().toString(36);
 
-for (const page of ["index.html", "tv.html", "editor.html"]) {
+for (const page of ["index.html", "tv.html", "editor.html", "themes.html"]) {
   const file = path.join(root, page);
   const before = fs.readFileSync(file, "utf8");
   const after = before.replace(/((?:src|href)="(?:js|css)\/[^"?]+\.(?:js|css))(\?v=[^"]*)?"/g, `$1?v=${version}"`);

@@ -5,6 +5,7 @@ let lib = loadLibrary();
 let board = buildBoard(lib);
 let game = loadGame();
 let tvWin = null;
+let theme = applyTheme(savedTheme());
 const undoStack = [];
 
 const $ = (id) => document.getElementById(id);
@@ -150,6 +151,7 @@ window.__onGCastApiAvailable = (ok, err) => {
 
 function sendView() {
   const view = buildView();
+  view.theme = theme;
   Local.send({ t: "view", view });
   if (Cast.session()) Cast.send({ t: "view", view: chunked(view, (m) => Cast.send(m), castImgs) });
   if (room && room.isConnected()) {
@@ -571,6 +573,41 @@ $("blur").onchange = (e) => {
     localStorage.setItem("jeopardy-blur", e.target.checked ? "1" : "");
   } catch (err) {}
 };
+
+// ---------- Theme ----------
+
+
+
+function renderThemes() {
+  $("themes").innerHTML = THEMES.map(
+    (t) => `<button class="theme-pick ${t.id === theme ? "on" : ""}" data-theme-id="${t.id}">
+      <span class="swatch">${t.colors.map((c) => `<i style="background:${c}"></i>`).join("")}</span>
+      <span class="tname" style="font-family:'${t.font}',sans-serif">${esc(t.name)}</span>
+    </button>`
+  ).join("");
+}
+
+function setTheme(id) {
+  theme = applyTheme(id);
+  saveTheme(theme);
+  renderThemes();
+  sendView();
+}
+
+$("themes").onclick = (e) => {
+  const b = e.target.closest("[data-theme-id]");
+  if (b) setTheme(b.dataset.themeId);
+};
+
+// The comparison page (themes.html) can pick one too.
+window.addEventListener("storage", (e) => {
+  if (e.key === THEME_KEY && e.newValue && e.newValue !== theme) setTheme(e.newValue);
+});
+window.addEventListener("focus", () => {
+  if (savedTheme() !== theme) setTheme(savedTheme());
+});
+
+renderThemes();
 
 $("localSound").onchange = (e) => {
   if (e.target.checked) Sfx.unlock();

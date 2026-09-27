@@ -5,7 +5,9 @@
 //   tv.html          a window on the same device as the host (laptop + HDMI)
 //   tv.html?cast=1   running on a Chromecast, controlled from a phone
 
-const CAST_MODE = new URLSearchParams(location.search).has("cast");
+const params = new URLSearchParams(location.search);
+const CAST_MODE = params.has("cast");
+const DEMO = params.get("demo"); // tv.html?demo=board&theme=neon shows a made-up game (for themes.html)
 
 let view = null;
 let roomCode = "";
@@ -24,6 +26,7 @@ const startEl = document.getElementById("start");
 function handle(msg) {
   if (msg.t === "view") {
     view = msg.view;
+    if (view.theme) saveTheme(applyTheme(view.theme));
     render();
   } else if (msg.t === "sfx") {
     Sfx.play(msg.name);
@@ -39,7 +42,14 @@ function handle(msg) {
   }
 }
 
-if (CAST_MODE) {
+applyTheme(DEMO ? params.get("theme") : savedTheme());
+
+if (DEMO) {
+  startEl.remove();
+  document.body.classList.add("cast");
+  view = demoView(DEMO);
+  render();
+} else if (CAST_MODE) {
   startEl.remove();
   document.body.classList.add("cast");
   const s = document.createElement("script");
@@ -292,4 +302,29 @@ function startCoin(s) {
     document.getElementById("coinResult").innerHTML = `<div class="result">${tails ? "TAILS" : "HEADS"}</div>`;
   }
   requestAnimationFrame(frame);
+}
+
+// ---------- Made-up game for previewing themes ----------
+
+function demoView(kind) {
+  const teams = [
+    { id: "a", name: "The Nerds", score: 1200 },
+    { id: "b", name: "Team Chaos", score: 400 },
+    { id: "c", name: "Last Place", score: -300 },
+  ];
+  const names = ["Science", "Movies", "Food", "Geography", "Memes", "Nerd Stuff"];
+  const cats = names.map((name, c) => ({
+    name,
+    cells: [100, 200, 300, 400, 500].map((value, r) => ({ value, used: (c * 5 + r) % 7 === 3 })),
+  }));
+  const q = "This planet is known as the Red Planet";
+  const screens = {
+    board: { type: "board", cats },
+    clue: { type: "clue", cat: "Science", value: 300, q },
+    answer: { type: "clue", cat: "Science", value: 300, q, a: "What is Mars?", twist: "Everyone else loses 100" },
+    splash: { type: "splash" },
+    scores: { type: "scores" },
+    double: { type: "double", cat: "Memes", value: 400 },
+  };
+  return { teams, screen: screens[kind] || screens.board };
 }

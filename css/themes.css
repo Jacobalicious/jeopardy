@@ -1,0 +1,585 @@
+/* Themes. The host picks one; the TV and host both switch to it.
+   Each theme is a block of variables (see the top of style.css for the full list)
+   plus a few extra rules for things variables can't do. "classic" is style.css itself.
+   The list of names shown in the picker is THEMES in js/shared.js. */
+
+@import url("https://fonts.googleapis.com/css2?family=Audiowide&family=Orbitron:wght@700;900&family=Monoton&family=Pixelify+Sans:wght@500;700&family=VT323&family=Permanent+Marker&family=Patrick+Hand&family=Bungee&family=Righteous&family=Luckiest+Guy&family=Creepster&family=Special+Elite&family=Playfair+Display:wght@700;900&family=Bebas+Neue&display=swap");
+
+/* ---------- Neon: synthwave, glowing pink and cyan ---------- */
+
+:root[data-theme="neon"] {
+  --f-display: Audiowide, sans-serif;
+  --f-head: Orbitron, sans-serif;
+  --blue: #1a0838;
+  --blue-dark: #12052a;
+  --blue-deep: #0a0118;
+  --gold: #ff4fd8;
+  --red: #ff7a59;
+  --green: #3dffb0;
+  --ink: #e9f7ff;
+  --muted: #9b8cc9;
+  --bg-tv: radial-gradient(ellipse at 50% 100%, #3b0a6b 0%, #0a0118 70%);
+  --edge: #0a0118;
+  --shadow: transparent;
+  --cat-bg: #0f1f3d;
+  --cat-ink: #5ff3ff;
+  --score-bg: #12052a;
+  --score-ring: #ff4fd8;
+  --panel: #150733;
+  --panel-2: #22104a;
+  --line: #3d2175;
+  --topbar: #0a0118;
+  --line-hi: #ff4fd8;
+  --panel-hi: #2d1560;
+  --field: #0d0325;
+  --used: #1a0f33;
+  --used-ink: #4a3a75;
+}
+
+:root[data-theme="neon"] .cell {
+  border: 0.2vh solid rgba(255, 79, 216, 0.55);
+  box-shadow: inset 0 0 2.5vh rgba(255, 79, 216, 0.25);
+}
+
+:root[data-theme="neon"] .cell.cat {
+  border: 0.2vh solid rgba(95, 243, 255, 0.6);
+  box-shadow: inset 0 0 2.5vh rgba(95, 243, 255, 0.25);
+}
+
+:root[data-theme="neon"] .clue {
+  border-color: #ff4fd8;
+  box-shadow: 0 0 4vh rgba(255, 79, 216, 0.5), inset 0 0 8vh rgba(255, 79, 216, 0.2);
+}
+
+:root[data-theme="neon"] :is(.cell.val, .cell.cat, .answer, .splash h1, .result, .leader h1, .double-big, .room-big b, .tv-score .pts, .clue .q.huge, .start-overlay .big) {
+  text-shadow: 0 0 0.8vh currentColor, 0 0 3vh currentColor;
+}
+
+:root[data-theme="neon"] .cell.used {
+  text-shadow: none;
+}
+
+:root[data-theme="neon"] .splash h1 {
+  font-family: Monoton, sans-serif;
+  font-weight: 400;
+  transform: none;
+}
+
+:root[data-theme="neon"] .kind-badge {
+  background: #5ff3ff;
+}
+
+/* ---------- Arcade: 80s arcade cabinet, maze-blue walls ---------- */
+
+:root[data-theme="arcade"] {
+  --f-display: "Pixelify Sans", monospace;
+  --f-head: VT323, monospace;
+  --blue: #000;
+  --blue-dark: #000;
+  --blue-deep: #000;
+  --gold: #ffe600;
+  --red: #ff3b3b;
+  --green: #4dff4d;
+  --ink: #ffffff;
+  --muted: #ffb8de;
+  --bg-tv: #000;
+  --edge: #2121de;
+  --shadow: #b51d1d;
+  --cat-bg: #000;
+  --cat-ink: #00ffff;
+  --score-bg: #000;
+  --score-ring: #2121de;
+  --panel: #05051a;
+  --panel-2: #0c0c33;
+  --line: #2121de;
+  --topbar: #000;
+  --line-hi: #ffe600;
+  --panel-hi: #14145a;
+  --field: #000;
+  --used: #07071f;
+  --used-ink: #2a2a70;
+}
+
+:root[data-theme="arcade"] .board {
+  gap: 0.8vh;
+  padding: 0.8vh;
+}
+
+:root[data-theme="arcade"] .cell {
+  box-shadow: none;
+}
+
+:root[data-theme="arcade"] :is(.cell.cat, .clue .q, .clue .tag, .splash ol, .splash h2, .leader .row, .coin-label, .double-top, .double-sub, .board-status, .tv-score .name) {
+  font-size-adjust: 0.55;
+}
+
+:root[data-theme="arcade"] .clue {
+  border: 0.8vh double #2121de;
+}
+
+/* ---------- Chalkboard: school chalkboard in a wooden frame ---------- */
+
+:root[data-theme="chalk"] {
+  --f-display: "Permanent Marker", cursive;
+  --f-head: "Patrick Hand", cursive;
+  --blue: #2c4a3c;
+  --blue-dark: #223a2f;
+  --blue-deep: #1b2f26;
+  --gold: #fff27a;
+  --red: #ff9a8a;
+  --green: #b8f5a0;
+  --ink: #f4f1e8;
+  --muted: #b9c7bd;
+  --bg-tv: radial-gradient(ellipse at 40% 30%, #34594a 0%, #1f3a2e 80%);
+  --edge: #6b4423;
+  --shadow: rgba(0, 0, 0, 0.35);
+  --on-gold: #1b2f26;
+  --cat-bg: #243f33;
+  --cat-ink: #ffffff;
+  --score-bg: #2c4a3c;
+  --score-ring: rgba(255, 255, 255, 0.25);
+  --panel: #223a2f;
+  --panel-2: #2c4a3c;
+  --line: #3f6655;
+  --topbar: #4a2e17;
+  --line-hi: #fff27a;
+  --panel-hi: #35594a;
+  --field: #1b2f26;
+  --used: #1f3329;
+  --used-ink: #4a6a5c;
+}
+
+:root[data-theme="chalk"] body.tv {
+  box-shadow: inset 0 0 0 1.4vh #6b4423, inset 0 0 0 1.8vh #3d2612;
+}
+
+:root[data-theme="chalk"] .board {
+  background: rgba(255, 255, 255, 0.35);
+  gap: 0.3vh;
+}
+
+:root[data-theme="chalk"] .cell {
+  box-shadow: inset 0 0 3vh rgba(255, 255, 255, 0.06);
+}
+
+:root[data-theme="chalk"] .cell.cat {
+  border-bottom: 0.3vh solid rgba(255, 255, 255, 0.5);
+}
+
+:root[data-theme="chalk"] .clue {
+  border: 0.3vh dashed rgba(255, 255, 255, 0.45);
+  box-shadow: none;
+}
+
+:root[data-theme="chalk"] :is(.cell.cat, .clue .q, .splash ol, .leader .row, .coin-label, .board-status, .tv-score .name) {
+  font-size-adjust: 0.52;
+}
+
+/* ---------- 70s: retro game show, orange and brown, sunburst ---------- */
+
+:root[data-theme="seventies"] {
+  --f-display: Bungee, sans-serif;
+  --f-head: Righteous, sans-serif;
+  --blue: #d9541e;
+  --blue-dark: #8a3b12;
+  --blue-deep: #2b1a0e;
+  --gold: #ffd23f;
+  --red: #ff8fa3;
+  --green: #b5f06b;
+  --ink: #fff4d6;
+  --muted: #f0b98a;
+  --bg-tv: repeating-conic-gradient(from 0deg at 50% 115%, #3d2412 0deg 7deg, #2b1a0e 7deg 14deg);
+  --edge: #2b1a0e;
+  --shadow: #5a2208;
+  --on-gold: #2b1a0e;
+  --cat-bg: #8a3b12;
+  --cat-ink: #ffd23f;
+  --score-bg: linear-gradient(#e8742a, #a8461a);
+  --score-ring: #ffd23f;
+  --panel: #3a2413;
+  --panel-2: #4d301a;
+  --line: #6e4424;
+  --topbar: #2b1a0e;
+  --line-hi: #ffd23f;
+  --panel-hi: #5e3a1f;
+  --field: #2b1a0e;
+  --used: #3a2819;
+  --used-ink: #6e5238;
+}
+
+:root[data-theme="seventies"] .board {
+  border-radius: 2vh;
+  padding: 1vh;
+  gap: 1vh;
+}
+
+:root[data-theme="seventies"] .cell {
+  border-radius: 1.5vh;
+  box-shadow: inset 0 -0.8vh 0 rgba(0, 0, 0, 0.25), inset 0 0.5vh 0 rgba(255, 255, 255, 0.15);
+}
+
+:root[data-theme="seventies"] .cell.cat {
+  border-bottom: 0;
+}
+
+:root[data-theme="seventies"] .clue {
+  border-radius: 3vh;
+  border-color: #ffd23f;
+}
+
+:root[data-theme="seventies"] .tv-score {
+  border-radius: 2vh;
+}
+
+/* ---------- Cartoon: loud, bouncy, thick black outlines ---------- */
+
+:root[data-theme="cartoon"] {
+  --f-display: "Luckiest Guy", cursive;
+  --f-head: "Luckiest Guy", cursive;
+  --blue: #ff2e93;
+  --blue-dark: #c0126a;
+  --blue-deep: #4a14b8;
+  --gold: #ffe600;
+  --red: #ff5a36;
+  --green: #5dff8a;
+  --ink: #ffffff;
+  --muted: #e2d4ff;
+  --bg-tv: radial-gradient(rgba(255, 255, 255, 0.12) 18%, transparent 20%) 0 0 / 5vh 5vh, #5b1fd1;
+  --edge: #000;
+  --shadow: #000;
+  --cat-bg: #00b3ff;
+  --cat-ink: #ffffff;
+  --score-bg: #ff2e93;
+  --score-ring: #ffe600;
+  --panel: #3a0f8a;
+  --panel-2: #4e1bb0;
+  --line: #000;
+  --topbar: #2a0870;
+  --line-hi: #ffe600;
+  --panel-hi: #6026d6;
+  --field: #2a0870;
+  --used: #3a1a7a;
+  --used-ink: #7a5cc0;
+}
+
+:root[data-theme="cartoon"] .board {
+  gap: 1vh;
+  padding: 1vh;
+  border-radius: 2vh;
+  border: 0.6vh solid #000;
+}
+
+:root[data-theme="cartoon"] .cell {
+  border-radius: 1.4vh;
+  border: 0.5vh solid #000;
+  box-shadow: inset 0 -0.8vh 0 rgba(0, 0, 0, 0.2);
+}
+
+:root[data-theme="cartoon"] :is(.cell.val, .answer, .splash h1, .result, .leader h1, .room-big b) {
+  -webkit-text-stroke: 0.3vh #000;
+  paint-order: stroke fill;
+}
+
+:root[data-theme="cartoon"] .clue {
+  border-radius: 3vh;
+}
+
+:root[data-theme="cartoon"] .clue .q {
+  font-weight: 400;
+  letter-spacing: 0.02em;
+}
+
+:root[data-theme="cartoon"] .tv-score {
+  border-radius: 1.5vh;
+  border-width: 0.5vh;
+}
+
+/* ---------- Horror: blood red on black ---------- */
+
+:root[data-theme="horror"] {
+  --f-display: Creepster, cursive;
+  --f-head: "Special Elite", monospace;
+  --blue: #140606;
+  --blue-dark: #0b0202;
+  --blue-deep: #000;
+  --gold: #e8141c;
+  --red: #8a8a8a;
+  --green: #9bd46a;
+  --ink: #ece4d4;
+  --muted: #9a8578;
+  --bg-tv: radial-gradient(ellipse at 50% 40%, #2e0505 0%, #000 70%);
+  --edge: #000;
+  --shadow: #000;
+  --on-gold: #000;
+  --cat-bg: #240505;
+  --cat-ink: #ece4d4;
+  --score-bg: #140606;
+  --score-ring: #4a0a0a;
+  --panel: #120404;
+  --panel-2: #1f0808;
+  --line: #3d0d0d;
+  --topbar: #000;
+  --line-hi: #e8141c;
+  --panel-hi: #2e0b0b;
+  --field: #0b0202;
+  --used: #1a0808;
+  --used-ink: #4a2020;
+}
+
+:root[data-theme="horror"] .cell {
+  box-shadow: inset 0 0 3vh rgba(120, 0, 0, 0.45);
+}
+
+:root[data-theme="horror"] .cell.val,
+:root[data-theme="horror"] .answer,
+:root[data-theme="horror"] .splash h1 {
+  letter-spacing: 0.04em;
+}
+
+:root[data-theme="horror"] .clue .q {
+  text-transform: none;
+  font-weight: 400;
+}
+
+/* ---------- Newspaper: black ink on old paper ---------- */
+
+:root[data-theme="newspaper"] {
+  --f-display: "Playfair Display", Georgia, serif;
+  --f-head: Oswald, sans-serif;
+  --blue: #fbf7ea;
+  --blue-dark: #efe6cf;
+  --blue-deep: #e9e0c8;
+  --gold: #9b1c1c;
+  --red: #555;
+  --green: #1d6b35;
+  --ink: #161412;
+  --muted: #6b6250;
+  --bg-tv: #efe8d4;
+  --edge: #161412;
+  --shadow: transparent;
+  --on-gold: #fff;
+  --cat-bg: #161412;
+  --cat-ink: #fbf7ea;
+  --score-bg: #fbf7ea;
+  --score-ring: transparent;
+  --panel: #fbf7ea;
+  --panel-2: #efe6cf;
+  --line: #cbbf9e;
+  --topbar: #161412;
+  --line-hi: #9b1c1c;
+  --panel-hi: #e6dcc0;
+  --field: #fff;
+  --used: #e6dfcb;
+  --used-ink: #b5aa8c;
+}
+
+:root[data-theme="newspaper"] .cell {
+  box-shadow: none;
+}
+
+:root[data-theme="newspaper"] :is(.cell.val, .answer, .splash h1, .result, .leader h1, .double-big, .room-big b, .tv-score .pts, .clue .q.huge) {
+  font-weight: 900;
+}
+
+:root[data-theme="newspaper"] .splash h1 {
+  transform: none;
+  border-top: 0.6vh double #161412;
+  border-bottom: 0.6vh double #161412;
+  padding: 1vh 4vw;
+}
+
+:root[data-theme="newspaper"] .clue {
+  border-width: 0.4vh;
+  box-shadow: none;
+  outline: 0.2vh solid #161412;
+  outline-offset: -1.4vh;
+}
+
+:root[data-theme="newspaper"] .clue .q {
+  font-weight: 700;
+}
+
+:root[data-theme="newspaper"] .double-big {
+  text-shadow: none;
+}
+
+:root[data-theme="newspaper"] :is(.btn.good, .btn.bad, .big-sfx, .double-banner, .hcell.cat) {
+  color: #fff;
+}
+
+:root[data-theme="newspaper"] .hcell.cat {
+  background: #161412;
+}
+
+/* ---------- Terminal: green-screen computer ---------- */
+
+:root[data-theme="terminal"] {
+  --f-display: VT323, monospace;
+  --f-head: VT323, monospace;
+  --blue: #001400;
+  --blue-dark: #000c00;
+  --blue-deep: #000;
+  --gold: #8cff8c;
+  --red: #ffb000;
+  --green: #8cff8c;
+  --ink: #3dff6e;
+  --muted: #1f9a3f;
+  --bg-tv: radial-gradient(ellipse at 50% 50%, #002200 0%, #000 80%);
+  --edge: #0a5a1c;
+  --shadow: transparent;
+  --on-gold: #000;
+  --cat-bg: #002a08;
+  --cat-ink: #8cff8c;
+  --score-bg: #000;
+  --score-ring: #0a5a1c;
+  --panel: #000c00;
+  --panel-2: #001a04;
+  --line: #0a5a1c;
+  --topbar: #000;
+  --line-hi: #3dff6e;
+  --panel-hi: #002a08;
+  --field: #000;
+  --used: #000a00;
+  --used-ink: #0a4a14;
+}
+
+:root[data-theme="terminal"] body {
+  font-size-adjust: 0.55;
+}
+
+:root[data-theme="terminal"] body.tv::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.28) 0 2px, transparent 2px 4px);
+  z-index: 40;
+}
+
+:root[data-theme="terminal"] .cell {
+  box-shadow: none;
+}
+
+:root[data-theme="terminal"] body.tv * {
+  text-shadow: 0 0 0.6vh rgba(61, 255, 110, 0.7);
+}
+
+:root[data-theme="terminal"] .cell.used {
+  text-shadow: none;
+}
+
+:root[data-theme="terminal"] .splash h1,
+:root[data-theme="terminal"] .clue .tag,
+:root[data-theme="terminal"] .splash ol {
+  transform: none;
+}
+
+:root[data-theme="terminal"] .splash h1::before {
+  content: "> ";
+}
+
+:root[data-theme="terminal"] .splash h1::after {
+  content: "_";
+  animation: blink 1s steps(1) infinite;
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+/* ---------- Midnight: modern, flat, minimal ---------- */
+
+:root[data-theme="midnight"] {
+  --f-display: "Bebas Neue", sans-serif;
+  --f-head: Inter, system-ui, sans-serif;
+  --blue: #1a1a22;
+  --blue-dark: #121218;
+  --blue-deep: #0b0b0f;
+  --gold: #2ee6b8;
+  --red: #ff5c7a;
+  --green: #2ee6b8;
+  --ink: #f2f2f5;
+  --muted: #8a8a99;
+  --bg-tv: #0b0b0f;
+  --edge: #0b0b0f;
+  --shadow: transparent;
+  --on-gold: #0b0b0f;
+  --cat-bg: #0b0b0f;
+  --cat-ink: #f2f2f5;
+  --score-bg: #1a1a22;
+  --score-ring: transparent;
+  --panel: #141419;
+  --panel-2: #1f1f28;
+  --line: #2a2a35;
+  --topbar: #0b0b0f;
+  --line-hi: #2ee6b8;
+  --panel-hi: #262631;
+  --field: #0b0b0f;
+  --used: #15151b;
+  --used-ink: #3a3a48;
+}
+
+:root[data-theme="midnight"] .board {
+  gap: 1vh;
+}
+
+:root[data-theme="midnight"] .cell {
+  border-radius: 1.2vh;
+  box-shadow: none;
+}
+
+:root[data-theme="midnight"] .cell.cat {
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  border-bottom: 0.4vh solid #2ee6b8;
+  border-radius: 0;
+}
+
+:root[data-theme="midnight"] .clue {
+  border: 0;
+  border-radius: 2vh;
+  box-shadow: none;
+}
+
+:root[data-theme="midnight"] .clue .q {
+  font-weight: 800;
+  text-transform: none;
+}
+
+:root[data-theme="midnight"] .splash h1 {
+  transform: none;
+  letter-spacing: 0.05em;
+}
+
+:root[data-theme="midnight"] .tv-score {
+  border: 0;
+  border-radius: 1.2vh;
+}
+
+:root[data-theme="midnight"] .kind-badge {
+  transform: none;
+  border-radius: 1vh;
+}
+
+:root[data-theme="midnight"] .double-big {
+  text-shadow: 0.8vh 0.8vh 0 #ff5c7a;
+}
+
+/* Twist banners where the theme's red doesn't carry white text */
+
+:root[data-theme="horror"] .twist {
+  background: #7a0000;
+}
+
+:root[data-theme="terminal"] .twist {
+  background: #ffb000;
+  color: #000;
+  text-shadow: none;
+}
+
+:root[data-theme="cartoon"] .splash ol {
+  line-height: 1.7;
+  letter-spacing: 0.02em;
+}

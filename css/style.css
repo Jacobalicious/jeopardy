@@ -12,6 +12,25 @@
   --panel: #0d1340;
   --panel-2: #141c55;
   --line: #27307a;
+
+  /* Everything a theme can change. Themes live in themes.css. */
+  --f-display: Anton, Impact, sans-serif;
+  --f-head: Oswald, sans-serif;
+  --f-body: Inter, system-ui, sans-serif;
+  --bg-tv: radial-gradient(ellipse at 50% 30%, #0c1790 0%, var(--blue-deep) 75%);
+  --edge: #000;
+  --shadow: #000;
+  --on-gold: #000;
+  --cat-bg: var(--blue);
+  --cat-ink: var(--ink);
+  --score-bg: linear-gradient(#1426c4, var(--blue-dark));
+  --score-ring: #3a4ce0;
+  --topbar: #070b33;
+  --line-hi: #5563d8;
+  --panel-hi: #1b2570;
+  --field: #0a0f38;
+  --used: #1a1f45;
+  --used-ink: #454c85;
 }
 
 * {
@@ -23,7 +42,7 @@ body {
   margin: 0;
   background: var(--blue-deep);
   color: var(--ink);
-  font-family: Inter, system-ui, sans-serif;
+  font-family: var(--f-body);
 }
 
 button {
@@ -38,7 +57,7 @@ body.tv {
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  background: radial-gradient(ellipse at 50% 30%, #0c1790 0%, var(--blue-deep) 75%);
+  background: var(--bg-tv);
 }
 
 .tv-main {
@@ -61,9 +80,9 @@ body.tv {
 .tv-score {
   flex: 1;
   max-width: 22vw;
-  background: linear-gradient(#1426c4, var(--blue-dark));
-  border: 0.3vh solid #000;
-  box-shadow: inset 0 0 0 0.3vh #3a4ce0;
+  background: var(--score-bg);
+  border: 0.3vh solid var(--edge);
+  box-shadow: inset 0 0 0 0.3vh var(--score-ring);
   border-radius: 0.6vh;
   text-align: center;
   padding: 0.8vh 0.5vw;
@@ -72,7 +91,7 @@ body.tv {
 }
 
 .tv-score .name {
-  font-family: Oswald, sans-serif;
+  font-family: var(--f-head);
   font-weight: 700;
   font-size: 2.4vh;
   text-transform: uppercase;
@@ -83,7 +102,7 @@ body.tv {
 }
 
 .tv-score .pts {
-  font-family: Anton, Impact, sans-serif;
+  font-family: var(--f-display);
   font-size: 4.6vh;
   color: var(--gold);
   line-height: 1.1;
@@ -102,11 +121,11 @@ body.tv {
   top: -3vh;
   left: 50%;
   transform: translateX(-50%);
-  font-family: Anton, Impact, sans-serif;
+  font-family: var(--f-display);
   font-size: 4vh;
   animation: floatUp 1.8s ease-out forwards;
   pointer-events: none;
-  text-shadow: 0 0.3vh 0 #000;
+  text-shadow: 0 0.3vh 0 var(--shadow);
 }
 
 .delta.up {
@@ -137,7 +156,7 @@ body.tv {
   grid-template-columns: repeat(6, 1fr);
   grid-template-rows: 1.25fr repeat(5, 1fr);
   gap: 0.6vh;
-  background: #000;
+  background: var(--edge);
   padding: 0.6vh;
   border-radius: 0.6vh;
 }
@@ -153,20 +172,22 @@ body.tv {
 }
 
 .cell.cat {
-  font-family: Oswald, sans-serif;
+  background: var(--cat-bg);
+  color: var(--cat-ink);
+  font-family: var(--f-head);
   font-weight: 700;
   text-transform: uppercase;
   font-size: 2.8vh;
   line-height: 1.1;
-  text-shadow: 0.25vh 0.25vh 0 #000;
-  border-bottom: 0.5vh solid #000;
+  text-shadow: 0.25vh 0.25vh 0 var(--shadow);
+  border-bottom: 0.5vh solid var(--edge);
 }
 
 .cell.val {
-  font-family: Anton, Impact, sans-serif;
+  font-family: var(--f-display);
   color: var(--gold);
   font-size: var(--val, 7vh);
-  text-shadow: 0.35vh 0.35vh 0 #000;
+  text-shadow: 0.35vh 0.35vh 0 var(--shadow);
 }
 
 .cell.used {
@@ -180,7 +201,7 @@ body.tv {
   width: 100%;
   height: 100%;
   background: var(--blue);
-  border: 0.8vh solid #000;
+  border: 0.8vh solid var(--edge);
   box-shadow: inset 0 0 8vh rgba(0, 0, 0, 0.5);
   display: flex;
   flex-direction: column;
@@ -208,7 +229,7 @@ body.tv {
   top: 3vh;
   left: 0;
   right: 0;
-  font-family: Oswald, sans-serif;
+  font-family: var(--f-head);
   font-weight: 700;
   text-transform: uppercase;
   font-size: 3vh;
@@ -221,12 +242,12 @@ body.tv {
 }
 
 .clue .q {
-  font-family: Oswald, sans-serif;
+  font-family: var(--f-head);
   font-weight: 600;
   text-transform: uppercase;
   font-size: 6.4vh;
   line-height: 1.2;
-  text-shadow: 0.4vh 0.4vh 0 #000;
+  text-shadow: 0.4vh 0.4vh 0 var(--shadow);
   max-width: 85vw;
 }
 
@@ -235,7 +256,7 @@ body.tv {
   max-height: 44vh;
   object-fit: contain;
   background: #fff;
-  border: 0.6vh solid #000;
+  border: 0.6vh solid var(--edge);
   border-radius: 0.8vh;
   margin: 3vh 0;
   animation: slam 0.4s cubic-bezier(0.2, 1.8, 0.4, 1);
@@ -256,7 +277,7 @@ body.tv {
 }
 
 .clue .q.huge {
-  font-family: Anton, Impact, sans-serif;
+  font-family: var(--f-display);
   font-weight: 400;
   font-size: 13vh;
   color: var(--gold);
@@ -265,22 +286,22 @@ body.tv {
 
 .kind-badge {
   display: inline-block;
-  font-family: Anton, Impact, sans-serif;
+  font-family: var(--f-display);
   font-size: 3.4vh;
   padding: 0.4vh 1.4vw;
   margin-bottom: 3vh;
   background: var(--gold);
-  color: #000;
+  color: var(--on-gold);
   transform: rotate(-3deg);
   letter-spacing: 0.05em;
 }
 
 .answer {
   margin-top: 4vh;
-  font-family: Anton, Impact, sans-serif;
+  font-family: var(--f-display);
   color: var(--gold);
   font-size: 7vh;
-  text-shadow: 0.4vh 0.4vh 0 #000;
+  text-shadow: 0.4vh 0.4vh 0 var(--shadow);
   animation: slam 0.4s cubic-bezier(0.2, 1.8, 0.4, 1);
 }
 
@@ -288,12 +309,12 @@ body.tv {
   margin-top: 3vh;
   background: var(--red);
   color: #fff;
-  font-family: Oswald, sans-serif;
+  font-family: var(--f-head);
   font-weight: 700;
   text-transform: uppercase;
   font-size: 4vh;
   padding: 1.2vh 2.5vw;
-  border: 0.5vh solid #000;
+  border: 0.5vh solid var(--edge);
   transform: rotate(-1.5deg);
   animation: slam 0.4s cubic-bezier(0.2, 1.8, 0.4, 1);
 }
@@ -316,19 +337,19 @@ body.tv {
 }
 
 .splash h1 {
-  font-family: Anton, Impact, sans-serif;
+  font-family: var(--f-display);
   font-weight: 400;
   font-size: 12vh;
   line-height: 1;
   margin: 0 0 1vh;
   color: var(--gold);
-  text-shadow: 0.6vh 0.6vh 0 #000;
+  text-shadow: 0.6vh 0.6vh 0 var(--shadow);
   text-transform: uppercase;
   transform: rotate(-2deg);
 }
 
 .splash h2 {
-  font-family: Oswald, sans-serif;
+  font-family: var(--f-head);
   font-size: 4vh;
   margin: 0 0 4vh;
   text-transform: uppercase;
@@ -337,7 +358,7 @@ body.tv {
 
 .splash ol {
   text-align: left;
-  font-family: Oswald, sans-serif;
+  font-family: var(--f-head);
   font-size: 3.2vh;
   line-height: 1.5;
   margin: 0 auto;
@@ -352,11 +373,11 @@ body.tv {
 /* Coin */
 
 .result {
-  font-family: Anton, Impact, sans-serif;
+  font-family: var(--f-display);
   font-size: 9vh;
   line-height: 1.05;
   color: var(--gold);
-  text-shadow: 0.4vh 0.4vh 0 #000;
+  text-shadow: 0.4vh 0.4vh 0 var(--shadow);
   animation: slam 0.4s cubic-bezier(0.2, 1.8, 0.4, 1);
 }
 
@@ -367,7 +388,7 @@ body.tv {
 }
 
 .coin-label {
-  font-family: Oswald, sans-serif;
+  font-family: var(--f-head);
   font-size: 5vh;
   text-transform: uppercase;
   margin-bottom: 6vh;
@@ -392,7 +413,7 @@ body.tv {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: Anton, Impact, sans-serif;
+  font-family: var(--f-display);
   font-size: 9vh;
   color: #6b4a00;
   background: radial-gradient(circle at 35% 30%, #fff3a8, #ffcc00 45%, #c79200 100%);
@@ -419,13 +440,13 @@ body.tv {
 }
 
 .leader h1 {
-  font-family: Anton, Impact, sans-serif;
+  font-family: var(--f-display);
   font-weight: 400;
   text-align: center;
   font-size: 9vh;
   margin: 0 0 3vh;
   color: var(--gold);
-  text-shadow: 0.5vh 0.5vh 0 #000;
+  text-shadow: 0.5vh 0.5vh 0 var(--shadow);
 }
 
 .leader .row {
@@ -433,10 +454,10 @@ body.tv {
   justify-content: space-between;
   align-items: center;
   background: var(--blue);
-  border: 0.4vh solid #000;
+  border: 0.4vh solid var(--edge);
   padding: 1.5vh 2vw;
   margin-bottom: 1.2vh;
-  font-family: Oswald, sans-serif;
+  font-family: var(--f-head);
   font-size: 5vh;
   font-weight: 700;
   text-transform: uppercase;
@@ -444,7 +465,7 @@ body.tv {
 }
 
 .leader .row .pts {
-  font-family: Anton, Impact, sans-serif;
+  font-family: var(--f-display);
   font-weight: 400;
   color: var(--gold);
 }
@@ -473,7 +494,7 @@ body.tv {
 }
 
 .start-overlay .big {
-  font-family: Anton, Impact, sans-serif;
+  font-family: var(--f-display);
   font-size: 9vh;
   color: var(--gold);
 }
@@ -497,7 +518,7 @@ body.host {
   align-items: center;
   gap: 10px;
   padding: 10px 16px;
-  background: #070b33;
+  background: var(--topbar);
   border-bottom: 1px solid var(--line);
   position: sticky;
   top: 0;
@@ -505,7 +526,7 @@ body.host {
 }
 
 .host-top .brand {
-  font-family: Anton, Impact, sans-serif;
+  font-family: var(--f-display);
   font-size: 22px;
   color: var(--gold);
   margin-right: 8px;
@@ -526,13 +547,13 @@ body.host {
 }
 
 .btn:hover {
-  border-color: #5563d8;
-  background: #1b2570;
+  border-color: var(--line-hi);
+  background: var(--panel-hi);
 }
 
 .btn.primary {
   background: var(--gold);
-  color: #000;
+  color: var(--on-gold);
   border-color: var(--gold);
 }
 
@@ -567,7 +588,7 @@ body.host {
 select,
 input[type="text"],
 input[type="number"] {
-  background: #0a0f38;
+  background: var(--field);
   color: var(--ink);
   border: 1px solid var(--line);
   border-radius: 8px;
@@ -598,7 +619,7 @@ input[type="number"] {
 
 .panel h3 {
   margin: 0 0 10px;
-  font-family: Oswald, sans-serif;
+  font-family: var(--f-head);
   text-transform: uppercase;
   letter-spacing: 0.06em;
   font-size: 14px;
@@ -635,7 +656,7 @@ input[type="number"] {
   color: var(--gold);
   border-radius: 6px;
   min-height: 52px;
-  font-family: Anton, Impact, sans-serif;
+  font-family: var(--f-display);
   font-size: 20px;
   position: relative;
   padding: 4px;
@@ -651,7 +672,7 @@ input[type="number"] {
   justify-content: center;
   text-align: center;
   line-height: 1.15;
-  font-family: Oswald, sans-serif;
+  font-family: var(--f-head);
   font-weight: 700;
   font-size: 12px;
   text-transform: uppercase;
@@ -663,8 +684,8 @@ input[type="number"] {
 }
 
 .hcell.used {
-  background: #1a1f45;
-  color: #454c85;
+  background: var(--used);
+  color: var(--used-ink);
 }
 
 .hcell.live {
@@ -676,7 +697,7 @@ input[type="number"] {
   top: 2px;
   right: 4px;
   font-size: 11px;
-  font-family: Inter, sans-serif;
+  font-family: var(--f-body);
 }
 
 .onair {
@@ -784,7 +805,7 @@ body.blur .secret:hover {
 }
 
 .player .score {
-  font-family: Anton, Impact, sans-serif;
+  font-family: var(--f-display);
   font-size: 22px;
   color: var(--gold);
   text-align: right;
@@ -817,7 +838,7 @@ body.blur .secret:hover {
 }
 
 .hint kbd {
-  background: #0a0f38;
+  background: var(--field);
   border: 1px solid var(--line);
   border-radius: 4px;
   padding: 0 5px;
@@ -829,7 +850,7 @@ body.blur .secret:hover {
   margin-top: 8px;
   padding: 8px 12px;
   border-radius: 10px;
-  background: #0a0f38;
+  background: var(--field);
   border: 1px dashed var(--line);
 }
 
@@ -855,7 +876,7 @@ a.btn {
 
 .cast-btn.on {
   background: var(--gold);
-  color: #000;
+  color: var(--on-gold);
   border-color: var(--gold);
 }
 
@@ -917,7 +938,7 @@ a.btn {
   border-radius: 6px;
   background: #1a2266;
   color: var(--gold);
-  font-family: Anton, Impact, sans-serif;
+  font-family: var(--f-display);
   font-size: 26px;
   padding: 0;
 }
@@ -956,7 +977,7 @@ a.btn {
   background: #06104f;
   padding: 1.2vh;
   border-radius: 1.5vh;
-  border: 0.5vh solid #000;
+  border: 0.5vh solid var(--edge);
   margin-top: 2vh;
 }
 
@@ -968,7 +989,7 @@ a.btn {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: Anton, Impact, sans-serif;
+  font-family: var(--f-display);
   font-size: calc(var(--cell) * 0.7);
   color: var(--gold);
 }
@@ -1003,14 +1024,14 @@ a.btn {
 
 .board-status {
   margin-top: 2vh;
-  font-family: Oswald, sans-serif;
+  font-family: var(--f-head);
   font-weight: 700;
   font-size: 3.4vh;
   text-transform: uppercase;
 }
 
 .board-status.done {
-  font-family: Anton, Impact, sans-serif;
+  font-family: var(--f-display);
   font-weight: 400;
   font-size: 6vh;
   color: var(--gold);
@@ -1040,7 +1061,7 @@ a.btn {
 }
 
 .qs-score {
-  font-family: Anton, Impact, sans-serif;
+  font-family: var(--f-display);
   color: var(--gold);
   min-width: 52px;
   text-align: right;
@@ -1186,21 +1207,21 @@ a.btn {
 /* Room codes */
 
 .room-big {
-  font-family: Oswald, sans-serif;
+  font-family: var(--f-head);
   font-size: 5vh;
   color: var(--ink);
   margin: 2vh 0;
 }
 
 .room-big b {
-  font-family: Anton, Impact, sans-serif;
+  font-family: var(--f-display);
   font-weight: 400;
   font-size: 14vh;
   color: var(--gold);
   letter-spacing: 0.15em;
   display: block;
   line-height: 1.1;
-  text-shadow: 0.5vh 0.5vh 0 #000;
+  text-shadow: 0.5vh 0.5vh 0 var(--shadow);
 }
 
 .room-corner {
@@ -1209,7 +1230,7 @@ a.btn {
   bottom: 0.6vh;
   font-size: 1.6vh;
   color: rgba(255, 255, 255, 0.25);
-  font-family: Oswald, sans-serif;
+  font-family: var(--f-head);
   letter-spacing: 0.1em;
 }
 
@@ -1219,7 +1240,7 @@ body.cast .room-corner {
 
 .room-input {
   width: 7.5em;
-  font-family: Anton, Impact, sans-serif;
+  font-family: var(--f-display);
   font-size: 22px;
   letter-spacing: 0.2em;
   text-transform: uppercase;
@@ -1227,7 +1248,7 @@ body.cast .room-corner {
 }
 
 .room-code {
-  font-family: Anton, Impact, sans-serif;
+  font-family: var(--f-display);
   font-size: 24px;
   letter-spacing: 0.15em;
   color: var(--gold);
@@ -1244,7 +1265,7 @@ body.cast .room-corner {
   position: absolute;
   left: 3px;
   top: 2px;
-  font-family: Inter, sans-serif;
+  font-family: var(--f-body);
   font-size: 10px;
   font-weight: 800;
   color: #ff9ad5;
@@ -1268,7 +1289,7 @@ body.cast .room-corner {
 }
 
 .double-top {
-  font-family: Oswald, sans-serif;
+  font-family: var(--f-head);
   font-weight: 700;
   text-transform: uppercase;
   font-size: 4vh;
@@ -1277,17 +1298,17 @@ body.cast .room-corner {
 }
 
 .double-big {
-  font-family: Anton, Impact, sans-serif;
+  font-family: var(--f-display);
   font-size: 20vh;
   line-height: 0.95;
   margin: 3vh 0;
   color: var(--gold);
-  text-shadow: 0.8vh 0.8vh 0 #d7263d, 1.6vh 1.6vh 0 #000;
+  text-shadow: 0.8vh 0.8vh 0 #d7263d, 1.6vh 1.6vh 0 var(--shadow);
   animation: wobble 0.9s ease-in-out infinite alternate;
 }
 
 .double-sub {
-  font-family: Oswald, sans-serif;
+  font-family: var(--f-head);
   font-size: 5vh;
   text-transform: uppercase;
 }
@@ -1358,4 +1379,50 @@ body.cast .room-corner {
   font-size: 17px;
   font-weight: 800;
   border-radius: 12px;
+}
+
+/* Theme picker */
+
+.theme-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 8px;
+}
+
+.theme-pick {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 6px;
+  padding: 8px;
+  background: var(--panel-2);
+  color: var(--ink);
+  border: 2px solid var(--line);
+  border-radius: 10px;
+  text-align: left;
+}
+
+.theme-pick:hover {
+  border-color: var(--line-hi);
+}
+
+.theme-pick.on {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 2px var(--gold);
+}
+
+.theme-pick .swatch {
+  display: flex;
+  height: 22px;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.theme-pick .swatch i {
+  flex: 1;
+}
+
+.theme-pick .tname {
+  font-size: 17px;
+  line-height: 1.1;
 }

@@ -43,6 +43,43 @@ function fmt(s) {
   return esc(s).replace(/\n/g, "<br>");
 }
 
+// ---------- Themes (the looks themselves are in css/themes.css) ----------
+
+const THEME_KEY = "jeopardy-theme";
+const THEMES = [
+  { id: "classic", name: "Classic", colors: ["#03052b", "#0b1ca8", "#ffcc00"], font: "Anton" },
+  { id: "neon", name: "Neon", colors: ["#0a0118", "#5ff3ff", "#ff4fd8"], font: "Audiowide" },
+  { id: "arcade", name: "Arcade", colors: ["#000", "#2121de", "#ffe600"], font: "Pixelify Sans" },
+  { id: "chalk", name: "Chalkboard", colors: ["#6b4423", "#2c4a3c", "#fff27a"], font: "Permanent Marker" },
+  { id: "seventies", name: "70s Show", colors: ["#2b1a0e", "#d9541e", "#ffd23f"], font: "Bungee" },
+  { id: "cartoon", name: "Cartoon", colors: ["#5b1fd1", "#ff2e93", "#ffe600"], font: "Luckiest Guy" },
+  { id: "horror", name: "Horror", colors: ["#000", "#240505", "#e8141c"], font: "Creepster" },
+  { id: "newspaper", name: "Newspaper", colors: ["#efe8d4", "#161412", "#9b1c1c"], font: "Playfair Display" },
+  { id: "terminal", name: "Terminal", colors: ["#000", "#002a08", "#3dff6e"], font: "VT323" },
+  { id: "midnight", name: "Midnight", colors: ["#0b0b0f", "#1a1a22", "#2ee6b8"], font: "Bebas Neue" },
+];
+
+function applyTheme(id) {
+  if (!THEMES.some((t) => t.id === id)) id = "classic";
+  if (id === "classic") delete document.documentElement.dataset.theme;
+  else document.documentElement.dataset.theme = id;
+  return id;
+}
+
+function savedTheme() {
+  try {
+    return localStorage.getItem(THEME_KEY) || "classic";
+  } catch (e) {
+    return "classic";
+  }
+}
+
+function saveTheme(id) {
+  try {
+    localStorage.setItem(THEME_KEY, id);
+  } catch (e) {}
+}
+
 // ---------- Library (all the questions) ----------
 
 function loadLibrary() {

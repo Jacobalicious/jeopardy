@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#070b33" />
+    <title>Jeopardy - Themes</title>
+    <link rel="stylesheet" href="css/style.css?v=mujj7s0v" />
+    <style>
+      body {
+        font-size: 14px;
+        min-height: 100vh;
+      }
+      .wrap {
+        padding: 16px;
+        max-width: 1600px;
+        margin: 0 auto;
+      }
+      .tabs {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-bottom: 16px;
+      }
+      .tabs .btn.on {
+        background: var(--gold);
+        color: #000;
+        border-color: var(--gold);
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(min(100%, 440px), 1fr));
+        gap: 16px;
+      }
+      .card {
+        background: var(--panel);
+        border: 2px solid var(--line);
+        border-radius: 12px;
+        overflow: hidden;
+      }
+      .card.on {
+        border-color: var(--gold);
+      }
+      .screen {
+        position: relative;
+        aspect-ratio: 16 / 9;
+        overflow: hidden;
+        background: #000;
+      }
+      .screen iframe {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 1280px;
+        height: 720px;
+        border: 0;
+        transform-origin: 0 0;
+        pointer-events: none;
+      }
+      .card .foot {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 12px;
+      }
+      .card .foot b {
+        flex: 1;
+        font-family: var(--f-head);
+        font-size: 18px;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+      }
+    </style>
+  </head>
+  <body class="host">
+    <div class="host-top">
+      <span class="brand">THEMES</span>
+      <span class="spacer"></span>
+      <a class="btn small" href="index.html">← Back to host</a>
+    </div>
+    <div class="wrap">
+      <div class="tabs" id="tabs"></div>
+      <div class="grid" id="grid"></div>
+    </div>
+
+    <script src="js/config.js?v=mujj7s0v"></script>
+    <script src="js/shared.js?v=mujj7s0v"></script>
+    <script>
+      const SCREENS = [
+        ["board", "Board"],
+        ["clue", "Question"],
+        ["answer", "Answer"],
+        ["splash", "Title"],
+        ["scores", "Standings"],
+        ["double", "Double points"],
+      ];
+      let screen = "board";
+      let current = savedTheme();
+
+      const tabs = document.getElementById("tabs");
+      const grid = document.getElementById("grid");
+
+      grid.innerHTML = THEMES.map(
+        (t) => `<div class="card" data-id="${t.id}">
+          <div class="screen"><iframe loading="lazy" tabindex="-1" title="${esc(t.name)}"></iframe></div>
+          <div class="foot"><b>${esc(t.name)}</b><button class="btn small">Use this</button></div>
+        </div>`
+      ).join("");
+
+      function renderTabs() {
+        tabs.innerHTML = SCREENS.map(
+          ([id, name]) => `<button class="btn small ${id === screen ? "on" : ""}" data-screen="${id}">${name}</button>`
+        ).join("");
+      }
+
+      function load() {
+        grid.querySelectorAll(".card").forEach((card) => {
+          card.querySelector("iframe").src = `tv.html?demo=${screen}&theme=${card.dataset.id}`;
+        });
+      }
+
+      function markCurrent() {
+        grid.querySelectorAll(".card").forEach((card) => {
+          const on = card.dataset.id === current;
+          card.classList.toggle("on", on);
+          const b = card.querySelector("button");
+          b.textContent = on ? "✓ In use" : "Use this";
+          b.classList.toggle("primary", on);
+        });
+      }
+
+      // Draw each 1280x720 TV shrunk to fit its card.
+      const fit = new ResizeObserver((entries) => {
+        entries.forEach((e) => {
+          e.target.querySelector("iframe").style.transform = `scale(${e.contentRect.width / 1280})`;
+        });
+      });
+      grid.querySelectorAll(".screen").forEach((s) => fit.observe(s));
+
+      tabs.onclick = (e) => {
+        const b = e.target.closest("[data-screen]");
+        if (!b) return;
+        screen = b.dataset.screen;
+        renderTabs();
+        load();
+      };
+
+      grid.onclick = (e) => {
+        const card = e.target.closest(".card");
+        if (!card || !e.target.closest("button")) return;
+        current = card.dataset.id;
+        saveTheme(current);
+        markCurrent();
+      };
+
+      renderTabs();
+      load();
+      markCurrent();
+    </script>
+  </body>
+</html>
