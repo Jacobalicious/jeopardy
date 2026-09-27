@@ -15,7 +15,7 @@ function freshGame(teamCount = 3, oldTeams = []) {
   for (let i = 0; i < teamCount; i++) {
     teams.push({ id: uid(), name: (oldTeams[i] && oldTeams[i].name) || "Team " + (i + 1), score: 0 });
   }
-  const g = { teams, used: {}, first: null, doubleCount: 2, doubles: [], screen: { type: "splash" } };
+  const g = { teams, used: {}, first: null, doubleCount: 2, doubles: [], screen: { type: "intro", i: 0 } };
   return g;
 }
 
@@ -888,6 +888,10 @@ try {
   if (savedRoom) roomConnect(savedRoom);
 } catch (e) {}
 renderRoom();
+
+// Before any question has been played, the TV opens on the about-me slides
+// instead of the title screen.
+if (game.screen.type === "splash" && !Object.keys(game.used).length) game.screen = { type: "intro", i: 0 };
 
 rollDoubles();
 
