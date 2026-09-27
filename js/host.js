@@ -294,6 +294,7 @@ function buildView() {
     if (s.stage >= 2 && clue.reward) screen.twist = clue.reward;
   }
   if (s.type === "coin") screen = { type: "coin", id: s.id, result: s.result, label: s.label };
+  if (s.type === "intro") screen = { type: "intro", i: s.i };
   return { title: lib.title, teams: game.teams, screen };
 }
 
@@ -305,6 +306,7 @@ function buildViewFor(screen) {
 // ---------- Rendering ----------
 
 function render() {
+  renderIntro();
   renderBoard();
   renderLive();
   renderTeams();
@@ -322,6 +324,62 @@ function renderStatus() {
   $("tvStatus").textContent = !Cast.s && tvWin && !tvWin.closed ? "TV window open" : "";
   $("castSetup").hidden = !!castAppId();
 }
+
+// ---------- The fake "About Me" slides ----------
+
+function renderIntro() {
+  const s = game.screen;
+  const el = $("intro");
+  const on = s.type === "intro";
+  el.classList.toggle("active", on);
+  if (!on) {
+    el.innerHTML = `<h3><span class="grow">About-me slides</span></h3>
+      <p class="hint">A normal-looking slideshow about you that slowly falls apart and turns into the game.</p>
+      <button class="btn primary" id="introStart">▶ Start the slides</button>`;
+    return;
+  }
+  const n = INTRO_SLIDES.length;
+  const sl = INTRO_SLIDES[s.i];
+  const last = s.i === n - 1;
+  el.innerHTML = `<h3><span class="onair">ON TV</span><span class="grow">Slide ${s.i + 1} of ${n}: ${esc(sl.name)}</span></h3>
+    <div class="hnote"><div class="lbl">Say</div>${esc(sl.note || "")}</div>
+    <div class="row intro-nav">
+      <button class="btn" id="introPrev" ${s.i === 0 ? "disabled" : ""}>← Back</button>
+      <button class="btn primary big" id="introNext">${last ? "Next → board" : "Next →"}</button>
+    </div>
+    <div class="row" style="margin-top: 10px">
+      <span class="hint hide-phone">Arrow keys, Space or a clicker work too.</span>
+      <span class="spacer"></span>
+      <button class="btn small ghost" id="introSkip">Skip to title</button>
+    </div>`;
+}
+
+function introGo(i) {
+  if (i < 0) return;
+  if (i >= INTRO_SLIDES.length) return setScreen({ type: "board" });
+  setScreen({ type: "intro", i });
+}
+
+function introKey(key) {
+  if (game.screen.type !== "intro") return false;
+  if (["ArrowRight", "PageDown", " ", "Enter"].includes(key)) introGo(game.screen.i + 1);
+  else if (["ArrowLeft", "PageUp"].includes(key)) introGo(game.screen.i - 1);
+  else return false;
+  return true;
+}
+
+$("intro").onclick = (e) => {
+  const id = e.target.id;
+  if (id === "introStart") introGo(0);
+  if (id === "introNext") introGo(game.screen.i + 1);
+  if (id === "introPrev") introGo(game.screen.i - 1);
+  if (id === "introSkip") setScreen({ type: "splash" });
+};
+
+// Keys pressed in the TV window (a clicker, on a laptop plugged into the TV).
+Local.listen((msg) => {
+  if (msg.t === "key") introKey(msg.key);
+});
 
 function renderBoard() {
   const s = game.screen;
@@ -801,6 +859,7 @@ $("teams").addEventListener("keydown", (e) => {
 
 document.addEventListener("keydown", (e) => {
   if (e.target.matches("input, select, textarea")) return;
+  if (introKey(e.key)) return e.preventDefault();
   const k = e.key.toLowerCase();
   const keys = { d: "ding", c: "correct", x: "buzzer", s: "sad", a: "airhorn", b: "boom" };
   if (k === " ") {

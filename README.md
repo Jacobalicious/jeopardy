@@ -23,6 +23,13 @@ The host's Theme panel switches the look of the TV and the host screen. Colours 
 are variables at the top of `css/style.css`; each theme overrides them in `css/themes.css`.
 The picker's list (names and swatches) is `THEMES` in `js/shared.js`.
 
+## About-me slides
+
+The host's **About-me slides** panel plays a fake Google-Slides-style intro on the TV that
+falls apart slide by slide and ends by crashing into the game. Slide text, speaker notes and
+how broken each slide gets are in `js/intro-slides.js`. Arrow keys, Space and presentation
+clickers move through them (in the TV window too, on a laptop).
+
 ## Questions
 
 Built-in questions live in `js/default-library.js`. Edits made in the editor are saved in

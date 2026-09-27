@@ -1443,3 +1443,134 @@ body.cast .room-corner {
   transform: rotate(-2deg);
   margin: 0 0 4vh;
 }
+
+/* ================= Fake "About Me" slides ================= */
+/* Plain white slides in a default-looking font, like a deck made at 3am.
+   Everything is sized off --u, one hundredth of the slide's width. */
+
+body.intro-on .room-corner {
+  display: none;
+}
+
+.gs-stage {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  background: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  --u: min(1vw, 1.7778vh);
+}
+
+.gs-stage.gs-crashing {
+  pointer-events: none;
+}
+
+.gs-slide {
+  position: relative;
+  width: calc(var(--u) * 100);
+  height: calc(var(--u) * 56.25);
+  background: #fff;
+  color: #222;
+  font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
+  box-sizing: border-box;
+  padding: calc(var(--u) * 5) calc(var(--u) * 7);
+  transform-origin: 0 0;
+  text-align: left;
+  line-height: 1.25;
+}
+
+.gs-w {
+  display: inline-block;
+  white-space: nowrap;
+  transform-origin: 0 100%;
+}
+
+.gs-l {
+  display: inline-block;
+  white-space: pre;
+}
+
+.gs-title .gs-w,
+.gs-head .gs-w {
+  transform-origin: 0 80%;
+}
+
+.gs-count {
+  position: absolute;
+  right: calc(var(--u) * 2);
+  bottom: calc(var(--u) * 1.4);
+  font-size: calc(var(--u) * 1.6);
+  opacity: 0.6;
+}
+
+/* Slide 1: title */
+.gs-slide.gs-layout-title {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.gs-slide.gs-layout-title .gs-title {
+  font-size: calc(var(--u) * 7.5);
+  border-bottom: calc(var(--u) * 0.25) solid #4285f4;
+  padding-bottom: calc(var(--u) * 1.5);
+  margin-bottom: calc(var(--u) * 2);
+}
+.gs-sub {
+  font-size: calc(var(--u) * 3.2);
+  color: #666;
+}
+
+/* Heading + bullet points */
+.gs-head {
+  font-size: calc(var(--u) * 4.6);
+  margin-bottom: calc(var(--u) * 2.5);
+}
+.gs-bullets {
+  margin: 0;
+  padding-left: calc(var(--u) * 3);
+  font-size: calc(var(--u) * 2.9);
+}
+.gs-bullets li {
+  margin-bottom: calc(var(--u) * 1.3);
+}
+
+/* Small lonely text in the middle */
+.gs-slide.gs-layout-crisis,
+.gs-slide.gs-layout-big {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+.gs-layout-crisis .gs-lines {
+  font-size: calc(var(--u) * 2.4);
+  text-transform: lowercase;
+  line-height: 1.7;
+}
+.gs-layout-big .gs-lines {
+  font-size: calc(var(--u) * 7);
+  font-weight: 700;
+}
+
+/* The last slide: huge, then it falls off the screen */
+.gs-slide.gs-layout-crash {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-size: calc(var(--u) * 8.5);
+  font-weight: 700;
+}
+
+/* Host: the about-me slides panel */
+.intro-panel.active {
+  border-color: var(--gold);
+}
+.intro-nav .btn.big {
+  flex: 1;
+  min-height: 56px;
+  font-size: 20px;
+}

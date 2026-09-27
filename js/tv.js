@@ -18,6 +18,7 @@ let coinStarts = {}; // coin id -> when this screen first saw it
 const imgParts = {}; // pictures arriving over Chromecast in pieces
 const imgs = {};
 let anim = null;
+let introTimers = []; // pending falling letters / sounds on the about-me slides
 
 const main = document.getElementById("main");
 const scoresEl = document.getElementById("scores");
@@ -79,6 +80,14 @@ if (DEMO) {
     else goFullscreen();
   });
   Local.listen(handle);
+  // A presentation clicker types into whichever window has focus, which is
+  // often this one. Pass slide keys back to the host window.
+  document.addEventListener("keydown", (e) => {
+    if (!view || view.screen.type !== "intro") return;
+    if (!["ArrowRight", "ArrowLeft", "PageDown", "PageUp", " ", "Enter"].includes(e.key)) return;
+    e.preventDefault();
+    Local.send({ t: "key", key: e.key });
+  });
   render();
 }
 
@@ -136,9 +145,13 @@ function render() {
   if (key === lastMainKey) return;
   lastMainKey = key;
   anim = null;
-  const views = { splash, board, clue, coin, double, scores: leaderboard };
+  introTimers.forEach(clearTimeout);
+  introTimers = [];
+  document.body.classList.toggle("intro-on", s.type === "intro");
+  const views = { splash, board, clue, coin, double, scores: leaderboard, intro };
   main.innerHTML = (views[s.type] || splash)(s);
   if (s.type === "coin") startCoin(s);
+  if (s.type === "intro") startIntro(s);
 }
 
 // ---------- Views ----------
@@ -272,7 +285,7 @@ function renderScores() {
     }
     lastScores[p.id] = p.score;
   });
-  scoresEl.style.display = view.screen.type === "scores" ? "none" : "";
+  scoresEl.style.display = view.screen.type === "scores" || view.screen.type === "intro" ? "none" : "";
 }
 
 // ---------- Coin ----------
@@ -305,6 +318,150 @@ function startCoin(s) {
   requestAnimationFrame(frame);
 }
 
+// ---------- The fake "About Me" slides ----------
+// Words are drawn letter by letter so they can tip over and fall off. The
+// randomness is seeded by the slide number, so a TV that reconnects draws the
+// same mess.
+
+
+function seeded(n) {
+  let x = (n + 1) * 2654435761;
+  return () => {
+    x ^= x << 13;
+    x ^= x >>> 17;
+    x ^= x << 5;
+    return ((x >>> 0) % 100000) / 100000;
+  };
+}
+
+function introText(text) {
+  return text
+    .split(" ")
+    .map((w) => `<span class="gs-w">${Array.from(w).map((ch) => `<span class="gs-l">${esc(ch)}</span>`).join("")}</span>`)
+    .join(" ");
+}
+
+function introSlide(sl) {
+  const style = `${sl.bg ? `background:${sl.bg};` : ""}${sl.ink ? `color:${sl.ink};` : ""}`;
+  let body = "";
+  if (sl.layout === "title") {
+    body = `<div class="gs-title">${introText(sl.title)}</div><div class="gs-sub">${introText(sl.lines[0] || "")}</div>`;
+  } else if (sl.layout === "bullets") {
+    body = `<div class="gs-head">${introText(sl.title)}</div>
+      <ul class="gs-bullets">${sl.lines.map((l) => `<li>${introText(l)}</li>`).join("")}</ul>`;
+  } else {
+    body = `<div class="gs-lines">${sl.lines.map((l) => `<div>${introText(l)}</div>`).join("")}</div>`;
+  }
+  return `<div class="gs-slide gs-layout-${sl.layout}" id="gsSlide" style="${style}">
+    ${body}
+    ${sl.counter ? `<div class="gs-count">${esc(sl.counter)}</div>` : ""}
+  </div>`;
+}
+
+function intro(s) {
+  const sl = INTRO_SLIDES[s.i] || INTRO_SLIDES[0];
+  if (sl.layout === "crash") return splash() + `<div class="gs-stage gs-crashing">${introSlide(sl)}</div>`;
+  return `<div class="gs-stage">${introSlide(sl)}</div>`;
+}
+
+function startIntro(s) {
+  const sl = INTRO_SLIDES[s.i] || INTRO_SLIDES[0];
+  const slide = document.getElementById("gsSlide");
+  if (!slide) return;
+  const rnd = seeded(s.i);
+
+  if (sl.layout === "crash") {
+    // Hangs for a beat, one corner lets go, then the whole slide drops away.
+    introTimers.push(setTimeout(() => Sfx.play("boom"), 1500));
+    introTimers.push(setTimeout(() => Sfx.play("airhorn"), 1900));
+    slide.animate(
+      [
+        { transform: "none" },
+        { transform: "rotate(0deg)", offset: 0.35 },
+        { transform: "rotate(14deg)", offset: 0.45, easing: "ease-in" },
+        { transform: "rotate(9deg)", offset: 0.52, easing: "ease-in" },
+        { transform: "rotate(18deg)", offset: 0.6, easing: "cubic-bezier(.5,0,1,.5)" },
+        { transform: "translateY(130vh) rotate(40deg)" },
+      ],
+      { duration: 2600, fill: "forwards" }
+    );
+    // The black around the slide goes as soon as it starts to fall.
+    slide.parentElement.animate(
+      [{ backgroundColor: "#000" }, { backgroundColor: "#000", offset: 0.5 }, { backgroundColor: "rgba(0,0,0,0)", offset: 0.7 }, { backgroundColor: "rgba(0,0,0,0)" }],
+      { duration: 2600, fill: "forwards" }
+    );
+    return;
+  }
+
+  // Words tip over slowly while the slide is up, mostly to the right.
+  const sag = sl.sag || 0;
+  if (sag) {
+    slide.querySelectorAll(".gs-w").forEach((w) => {
+      const rot = sag * (rnd() * 34 - 8);
+      const dy = sag * rnd() * 0.5;
+      const end = `translateY(${dy}em) rotate(${rot}deg)`;
+      const start = `translateY(${dy * 0.3}em) rotate(${rot * 0.3}deg)`;
+      w.animate([{ transform: start }, { transform: end }], {
+        duration: 5000 + rnd() * 6000,
+        delay: rnd() * 3000,
+        easing: "ease-in",
+        fill: "both",
+      });
+      w.querySelectorAll(".gs-l").forEach((l) => {
+        if (rnd() < sag * 0.35) l.style.transform = `rotate(${(rnd() - 0.5) * 50 * sag}deg)`;
+      });
+    });
+  }
+
+  // Some letters give up entirely and drop to the bottom of the slide.
+  const fall = sl.fall || 0;
+  if (!fall) return;
+  const over = (sl.fallOver || 10) * 1000;
+  let lastClink = 0;
+  slide.querySelectorAll(".gs-l").forEach((l) => {
+    if (rnd() >= fall) return;
+    const delay = 1500 + rnd() * over;
+    const spin = (rnd() - 0.5) * 160;
+    const drift = (rnd() - 0.5) * 60; // px sideways
+    const settle = rnd() * 0.2 - 0.25; // how high off the floor it ends up, in letter heights
+    introTimers.push(
+      setTimeout(() => {
+        const floor = slide.getBoundingClientRect().bottom;
+        const r = l.getBoundingClientRect();
+        const dy = floor - r.bottom - settle * r.height;
+        if (dy <= 0) return;
+        // The word it sits in may be tilted, so turn "straight down" into the word's own direction.
+        const m = new DOMMatrix(getComputedStyle(l.parentElement).transform);
+        const a = Math.atan2(m.b, m.a);
+        const local = (x, y) => [Math.cos(a) * x + Math.sin(a) * y, -Math.sin(a) * x + Math.cos(a) * y];
+        const at = (x, y, k) => {
+          const [lx, ly] = local(x, y);
+          return `translate(${lx}px, ${ly}px) rotate(${spin * k}deg)`;
+        };
+        const t = Math.min(1100, 350 + Math.sqrt(dy) * 28);
+        l.animate(
+          [
+            { transform: l.style.transform || "none", easing: "cubic-bezier(.55,0,1,.45)" },
+            { transform: at(drift, dy, 1), offset: 0.8, easing: "ease-out" },
+            { transform: at(drift * 1.1, dy - 12, 1.05), offset: 0.9, easing: "ease-in" },
+            { transform: at(drift * 1.15, dy, 1.1) },
+          ],
+          { duration: t, fill: "forwards" }
+        );
+        if (sl.clink) {
+          introTimers.push(
+            setTimeout(() => {
+              if (Date.now() - lastClink < 250) return;
+              lastClink = Date.now();
+              Sfx.play("drop");
+            }, t * 0.8)
+          );
+        }
+      }, delay)
+    );
+  });
+}
+
 // ---------- Made-up game for previewing themes ----------
 
 function demoView(kind) {
@@ -327,5 +484,6 @@ function demoView(kind) {
     scores: { type: "scores" },
     double: { type: "double", cat: "Memes", value: 400 },
   };
+  if (/^intro\d+$/.test(kind)) return { teams, screen: { type: "intro", i: Number(kind.slice(5)) } };
   return { teams, screen: screens[kind] || screens.board };
 }
