@@ -1313,3 +1313,49 @@ body.cast .room-corner {
 .splash ol {
   font-size: 4.2vh;
 }
+
+/* Big, easy-to-hit buttons on the question sheet */
+
+.sfx-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.big-sfx {
+  padding: 16px 10px;
+  font-size: 18px;
+  font-weight: 800;
+  border-radius: 12px;
+}
+
+.big-sfx.ding {
+  background: #1d4ed8;
+  border-color: #3b82f6;
+}
+
+.big-sfx.wrong {
+  background: #8e1224;
+  border-color: #d7263d;
+}
+
+.qs.big {
+  padding: 6px 0;
+}
+
+.qs.big .qs-name {
+  font-size: 17px;
+}
+
+.qs.big .qs-score {
+  font-size: 20px;
+}
+
+.qs.big .btn.pts {
+  padding: 14px 6px;
+  min-width: 78px;
+  font-size: 17px;
+  font-weight: 800;
+  border-radius: 12px;
+}

@@ -345,16 +345,21 @@ function renderBoard() {
 }
 
 function scoreButtons(value) {
-  return `<div class="quick-scores">${game.teams
-    .map(
-      (t) => `<div class="qs">
+  return `<div class="quick-scores">
+    <div class="sfx-row">
+      <button class="btn big-sfx ding" data-sfx-live="ding">🔔 Ding</button>
+      <button class="btn big-sfx wrong" data-sfx-live="buzzer">❌ Wrong</button>
+    </div>
+    ${game.teams
+      .map(
+        (t) => `<div class="qs big">
         <span class="qs-name">${esc(t.name)}</span>
         <span class="qs-score ${t.score < 0 ? "neg" : ""}">${t.score}</span>
-        <button class="btn small good" data-add="${value}" data-id="${t.id}">+${value}</button>
-        <button class="btn small bad" data-add="${-value}" data-id="${t.id}">−${value}</button>
+        <button class="btn good pts" data-add="${value}" data-id="${t.id}">+${value}</button>
+        <button class="btn bad pts" data-add="${-value}" data-id="${t.id}">−${value}</button>
       </div>`
-    )
-    .join("")}</div>`;
+      )
+      .join("")}</div>`;
 }
 
 function renderLive() {
@@ -696,6 +701,7 @@ $("live").onclick = (e) => {
   const t = e.target;
   scoreClick(e);
   if (t.id === "revealA") advance();
+  if (t.dataset.sfxLive) sfx(t.dataset.sfxLive);
   if (t.id === "showQ") advance();
   if (t.id === "revealT") {
     game.screen.stage = 2;
