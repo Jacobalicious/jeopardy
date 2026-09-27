@@ -131,11 +131,12 @@ function goFullscreen() {
 
 function render() {
   if (!view) {
+    // Plain on purpose: the game's name here would spoil the about-me slides.
     main.innerHTML = CAST_MODE
-      ? `<div class="splash"><h1>Jeopardy</h1><h2>Connected. Waiting for the host...</h2></div>`
-      : `<div class="splash"><h1>Jeopardy</h1>
-          <div class="room-big room-slot"></div>
-          <h2>On the host phone, type this code under "Connect a TV"</h2></div>`;
+      ? `<div class="gs-stage gs-wait"><div>Connected. Waiting for the presenter...</div></div>`
+      : `<div class="gs-stage gs-wait"><div>
+          <div class="room-slot"></div>
+          <div class="gs-wait-small">On the host phone, type this code under "Connect a TV"</div></div></div>`;
     showRoomCode();
     return;
   }

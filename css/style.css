@@ -1574,3 +1574,46 @@ body.intro-on .room-corner {
   min-height: 56px;
   font-size: 20px;
 }
+
+/* TV waiting screens and the click-to-start cover stay plain so nothing
+   gives away the game before the about-me slides. */
+.gs-wait {
+  z-index: 1;
+  color: #777;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: calc(var(--u) * 2.2);
+  text-align: center;
+}
+.gs-wait .room-slot {
+  font-size: calc(var(--u) * 4);
+  color: #ccc;
+  margin-bottom: calc(var(--u) * 1.5);
+}
+.gs-wait-small {
+  font-size: calc(var(--u) * 1.8);
+}
+body.tv .start-overlay {
+  background: #000;
+  font-family: Arial, Helvetica, sans-serif;
+}
+body.tv .start-overlay .big {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 5vh;
+  color: #ccc;
+}
+body.tv .start-overlay .small {
+  color: #777;
+  font-size: 2.2vh;
+}
+body.tv .start-overlay .room-big {
+  font-family: Arial, Helvetica, sans-serif;
+  color: #999;
+}
+body.tv .start-overlay .room-big b,
+.gs-wait .room-slot b {
+  font-family: Arial, Helvetica, sans-serif;
+  color: #eee;
+  font-weight: 700;
+  letter-spacing: 0.3em;
+  text-shadow: none;
+}
