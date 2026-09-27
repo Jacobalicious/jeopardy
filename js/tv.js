@@ -113,8 +113,8 @@ function goFullscreen() {
 function render() {
   if (!view) {
     main.innerHTML = CAST_MODE
-      ? `<div class="splash"><h1>Brain Damage Jeopardy</h1><h2>Connected. Waiting for the host...</h2></div>`
-      : `<div class="splash"><h1>Brain Damage Jeopardy</h1>
+      ? `<div class="splash"><h1>Jeopardy</h1><h2>Connected. Waiting for the host...</h2></div>`
+      : `<div class="splash"><h1>Jeopardy</h1>
           <div class="room-big room-slot"></div>
           <h2>On the host phone, type this code under "Connect a TV"</h2></div>`;
     showRoomCode();
@@ -126,7 +126,7 @@ function render() {
   if (key === lastMainKey) return;
   lastMainKey = key;
   anim = null;
-  const views = { splash, board, clue, coin, scores: leaderboard };
+  const views = { splash, board, clue, coin, double, scores: leaderboard };
   main.innerHTML = (views[s.type] || splash)(s);
   if (s.type === "coin") startCoin(s);
 }
@@ -135,15 +135,22 @@ function render() {
 
 function splash() {
   return `<div class="splash">
-    <h1>${esc(view.title || "Brain Damage Jeopardy")}</h1>
-    <h2>The trivia game where being smart will not help you</h2>
+    <h1>Jeopardy</h1>
     <ol>
       <li><b>Say "DING"</b> out loud to answer.</li>
+      <li>Only say DING <b>after the host finishes reading the question.</b></li>
       <li>The host is always right. <b>Especially when wrong.</b></li>
       <li>Points are made up and will be taken away.</li>
-      <li>Complaining costs <b>100 points</b>.</li>
       <li>There is no rule 5. <b>Minus 100 for reading it.</b></li>
     </ol>
+  </div>`;
+}
+
+function double(s) {
+  return `<div class="double-screen">
+    <div class="double-top">${esc(s.cat)} &middot; ${s.value}</div>
+    <div class="double-big">DOUBLE<br />POINTS!</div>
+    <div class="double-sub">This one is worth <b>${s.value * 2}</b></div>
   </div>`;
 }
 
@@ -172,7 +179,7 @@ function clue(s) {
     pic = src ? `<img class="qimg" src="${esc(src)}" alt="" />` : `<div class="img-wait">Loading picture...</div>`;
   }
   let html = `<div class="clue ${s.img || s.board ? "has-img" : ""}">
-    <div class="tag">${esc(s.cat)} &middot; <b>${s.value}</b></div>
+    <div class="tag">${esc(s.cat)} &middot; <b>${s.doubled ? s.value * 2 + " (DOUBLE POINTS)" : s.value}</b></div>
     ${s.badge ? `<div class="kind-badge">${esc(s.badge)}</div>` : ""}
     ${pic}
     <div class="q ${huge ? "huge" : ""} ${long ? "long" : ""}">${fmt(s.q)}</div>`;

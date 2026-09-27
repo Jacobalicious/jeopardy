@@ -2,7 +2,7 @@
 // saves your changes in the browser. To make edits permanent for everyone,
 // send Claude a "Send to phone" link or a backup file.
 window.DEFAULT_LIBRARY = {
-  "title": "Brain Damage Jeopardy",
+  "title": "Jeopardy",
   "rows": 6,
   "categories": [
     {

@@ -14,7 +14,32 @@ function freshGame(teamCount = 3, oldTeams = []) {
   for (let i = 0; i < teamCount; i++) {
     teams.push({ id: uid(), name: (oldTeams[i] && oldTeams[i].name) || "Team " + (i + 1), score: 0 });
   }
-  return { teams, used: {}, first: null, screen: { type: "splash" } };
+  const g = { teams, used: {}, first: null, doubleCount: 2, doubles: [], screen: { type: "splash" } };
+  return g;
+}
+
+// ---------- Double points ----------
+// A few squares are secretly worth double. Only the host board shows which.
+
+function isDouble(qid) {
+  return (game.doubles || []).includes(qid);
+}
+
+// Keeps the right number of double squares on the current board, re-rolling
+// any that were removed. Squares already played keep their status.
+function rollDoubles() {
+  if (game.doubleCount == null) game.doubleCount = 2;
+  const ids = board.categories.flatMap((c) => c.clues.map((q) => q.id));
+  game.doubles = (game.doubles || []).filter((id) => ids.includes(id));
+  const open = ids.filter((id) => !game.doubles.includes(id) && !game.used[id]);
+  while (game.doubles.length > game.doubleCount) game.doubles.pop();
+  while (game.doubles.length < game.doubleCount && open.length) {
+    game.doubles.push(open.splice(Math.floor(Math.random() * open.length), 1)[0]);
+  }
+}
+
+function clueWorth(qid, value) {
+  return isDouble(qid) ? value * 2 : value;
 }
 
 function loadGame() {
@@ -258,7 +283,9 @@ function buildView() {
     const found = findClue(s.qid);
     if (!found) return buildViewFor({ type: "board" });
     const { cat, clue } = found;
+    if (s.stage < 0) return { title: lib.title, teams: game.teams, screen: { type: "double", cat: cat.name, value: clue.value } };
     screen = { type: "clue", cat: cat.name, value: clue.value, badge: BADGES[clue.kind] || "", q: clue.q };
+    if (isDouble(s.qid)) screen.doubled = true;
     if (clue.img && (clue.imgAt !== "a" || s.stage >= 1)) screen.img = clue.img;
     if (s.board) screen.board = s.board;
     if (s.stage >= 1 && clue.kind !== "chaos") screen.a = answerFor(game, clue);
@@ -280,6 +307,7 @@ function render() {
   renderLive();
   renderTeams();
   renderSwap();
+  renderDoubles();
   renderCoin();
   renderStatus();
 }
@@ -305,7 +333,8 @@ function renderBoard() {
       if (!q) return (html += `<div class="hcell empty"></div>`);
       const used = game.used[q.id];
       const live = s.type === "clue" && s.qid === q.id;
-      html += `<button class="hcell ${used ? "used" : ""} ${live ? "live" : ""}" data-q="${q.id}">${q.value}<span class="k">${
+      const dbl = isDouble(q.id) ? `<span class="x2">2×</span>` : "";
+      html += `<button class="hcell ${used ? "used" : ""} ${live ? "live" : ""}" data-q="${q.id}">${q.value}${dbl}<span class="k">${
         icons[q.kind] || ""
       }</span></button>`;
     });
@@ -342,10 +371,18 @@ function renderLive() {
     const { cat, clue } = found;
     const kind = clue.kind || "q";
     const isChaos = kind === "chaos";
+    const worth = clueWorth(s.qid, clue.value);
+    const dbl = isDouble(s.qid);
     el.innerHTML = `
-      <h3><span class="onair">ON TV</span><span class="grow">${esc(cat.name)} · ${clue.value}${
+      <h3><span class="onair">ON TV</span><span class="grow">${esc(cat.name)} · ${worth}${dbl ? " (double)" : ""}${
       kind !== "q" ? " · " + kind : ""
     }</span></h3>
+      ${
+        dbl && s.stage < 0
+          ? `<div class="double-banner">🎉 DOUBLE POINTS square! The TV is showing the Double Points screen.
+              <button class="btn primary" id="showQ">Show the question</button></div>`
+          : ""
+      }
       <div class="hq">${fmt(clue.q)}</div>
       ${clue.img ? `<img class="hpic" src="${esc(clue.img)}" alt="" />${clue.imgAt === "a" ? `<div class="hint">Picture shows on the TV with the answer.</div>` : ""}` : ""}
       <div class="hanswer secret"><div class="lbl">${isChaos ? "What happens" : "Answer"}${
@@ -358,12 +395,12 @@ function renderLive() {
           : ""
       }
       <div class="row">
-        ${!isChaos ? `<button class="btn primary" id="revealA" ${s.stage >= 1 ? "disabled" : ""}>Reveal answer</button>` : ""}
+        ${!isChaos ? `<button class="btn primary" id="revealA" ${s.stage >= 1 || s.stage < 0 ? "disabled" : ""}>Reveal answer</button>` : ""}
         ${clue.reward ? `<button class="btn primary" id="revealT" ${s.stage >= 2 ? "disabled" : ""}>Reveal twist</button>` : ""}
         ${kind === "coin" ? `<button class="btn" id="liveCoin">Flip the coin</button>` : ""}
       </div>
       ${s.board ? boardControls(s.board) : ""}
-      ${scoreButtons(clue.value)}
+      ${scoreButtons(worth)}
       <div class="row sheet-actions">
         <button class="btn good big" id="done">Done → board</button>
         <button class="btn ghost" id="cancel">Cancel</button>
@@ -427,6 +464,10 @@ function renderSwap() {
   });
 }
 
+function renderDoubles() {
+  $("doubleCount").textContent = game.doubleCount;
+}
+
 function renderCoin() {
   const s = game.screen;
   const landed = $("landed");
@@ -438,7 +479,8 @@ function renderCoin() {
 // ---------- Actions ----------
 
 function openClue(qid) {
-  game.screen = { type: "clue", qid, stage: 0 };
+  // Double squares start on the Double Points screen (stage -1).
+  game.screen = { type: "clue", qid, stage: isDouble(qid) ? -1 : 0 };
   const found = findClue(qid);
   if (found && found.clue.game) game.screen.board = newBoard(found.clue.game);
   // Remember the first question of the night for the memory-test question.
@@ -454,7 +496,7 @@ function openClue(qid) {
     };
   }
   commit();
-  sfx("whoosh");
+  sfx(isDouble(qid) ? "airhorn" : "whoosh");
 }
 
 function advance() {
@@ -463,7 +505,8 @@ function advance() {
     const found = findClue(s.qid);
     if (!found) return;
     const { clue } = found;
-    if (clue.kind === "chaos") {
+    if (s.stage < 0) s.stage = 0;
+    else if (clue.kind === "chaos") {
       if (!clue.reward || s.stage >= 2) return;
       s.stage = 2;
     } else if (s.stage === 0) s.stage = 1;
@@ -503,6 +546,7 @@ function flipCoin(label) {
 function reloadLibrary() {
   lib = loadLibrary();
   board = buildBoard(lib);
+  rollDoubles();
   commit();
 }
 
@@ -532,7 +576,10 @@ $("localSound").onchange = (e) => {
 
 $("reset").onclick = () => {
   if (!confirm("Start a new game? Scores go to 0 and every square comes back. Team names stay.")) return;
+  const count = game.doubleCount;
   game = freshGame(game.teams.length, game.teams);
+  game.doubleCount = count == null ? 2 : count;
+  rollDoubles();
   undoStack.length = 0;
   commit();
 };
@@ -560,6 +607,19 @@ $("sounds").onclick = (e) => {
 document.querySelectorAll("[data-screen]").forEach((b) => (b.onclick = () => setScreen({ type: b.dataset.screen })));
 
 $("castBtn").onclick = castClick;
+
+function setDoubleCount(n) {
+  game.doubleCount = Math.max(0, Math.min(10, n));
+  rollDoubles();
+  commit();
+}
+$("dblMinus").onclick = () => setDoubleCount(game.doubleCount - 1);
+$("dblPlus").onclick = () => setDoubleCount(game.doubleCount + 1);
+$("dblReroll").onclick = () => {
+  game.doubles = (game.doubles || []).filter((id) => game.used[id]);
+  rollDoubles();
+  commit();
+};
 
 $("resetQs").onclick = () => {
   if (!confirm("Put the questions back to the built-in set? Edits made on this device are lost. Scores and teams stay.")) return;
@@ -636,6 +696,7 @@ $("live").onclick = (e) => {
   const t = e.target;
   scoreClick(e);
   if (t.id === "revealA") advance();
+  if (t.id === "showQ") advance();
   if (t.id === "revealT") {
     game.screen.stage = 2;
     commit();
@@ -725,6 +786,8 @@ try {
   if (savedRoom) roomConnect(savedRoom);
 } catch (e) {}
 renderRoom();
+
+rollDoubles();
 
 importFromHash().then((loaded) => {
   if (loaded) reloadLibrary();

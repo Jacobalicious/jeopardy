@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="theme-color" content="#070b33" />
     <title>Jeopardy - Host</title>
-    <link rel="stylesheet" href="css/style.css?v=mujie059" />
+    <link rel="stylesheet" href="css/style.css?v=mujikl0y" />
   </head>
   <body class="host">
     <div class="host-top">
@@ -125,6 +125,22 @@
         </div>
 
         <div class="panel">
+          <h3>
+            <span class="grow">Double points squares</span>
+            <span class="stepper">
+              <button class="btn small" id="dblMinus" aria-label="Fewer">−</button>
+              <b id="doubleCount"></b>
+              <button class="btn small" id="dblPlus" aria-label="More">+</button>
+            </span>
+          </h3>
+          <p class="hint">
+            Hidden squares worth double. Only your board shows them (marked <b>2×</b>). They're picked at random every
+            <b>New game</b>.
+          </p>
+          <button class="btn small" id="dblReroll">Re-roll them now</button>
+        </div>
+
+        <div class="panel">
           <h3>Settings</h3>
           <label class="tv-status"><input type="checkbox" id="blur" /> Blur answers until I hover or tap them</label>
           <div class="row" style="margin-top: 14px">
@@ -139,11 +155,11 @@
       </div>
     </div>
 
-    <script src="js/config.js?v=mujie059"></script>
-    <script src="js/default-library.js?v=mujie059"></script>
-    <script src="js/relay.js?v=mujie059"></script>
-    <script src="js/shared.js?v=mujie059"></script>
-    <script src="js/host.js?v=mujie059"></script>
+    <script src="js/config.js?v=mujikl0y"></script>
+    <script src="js/default-library.js?v=mujikl0y"></script>
+    <script src="js/relay.js?v=mujikl0y"></script>
+    <script src="js/shared.js?v=mujikl0y"></script>
+    <script src="js/host.js?v=mujikl0y"></script>
     <script src="https://www.gstatic.com/cv/js/sender/v1/cast_sender.js"></script>
   </body>
 </html>
