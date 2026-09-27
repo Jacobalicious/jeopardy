@@ -1,24 +1,62 @@
-// The TV screen. It never decides anything; it only draws whatever the host says.
-// No answers ever reach this screen until the host reveals them.
+// The TV screen. It never decides anything and never has the answers until the
+// host reveals them: the host sends a finished "view" and this just draws it.
+//
+// Two ways to get here:
+//   tv.html          a window on the same device as the host (laptop + HDMI)
+//   tv.html?cast=1   running on a Chromecast, controlled from a phone
 
-let state = loadState();
+const CAST_MODE = new URLSearchParams(location.search).has("cast");
+
+let view = null;
 let lastMainKey = "";
 let lastScores = {};
-let anim = null; // current wheel / coin animation
+let coinStarts = {}; // coin id -> when this screen first saw it
+let anim = null;
 
 const main = document.getElementById("main");
 const scoresEl = document.getElementById("scores");
+const startEl = document.getElementById("start");
 
-document.getElementById("start").addEventListener("click", (e) => {
-  Sfx.unlock();
-  goFullscreen();
-  e.currentTarget.remove();
-});
+function handle(msg) {
+  if (msg.t === "view") {
+    view = msg.view;
+    render();
+  } else if (msg.t === "sfx") {
+    Sfx.play(msg.name);
+  }
+}
 
-document.addEventListener("dblclick", () => {
-  if (document.fullscreenElement) document.exitFullscreen();
-  else goFullscreen();
-});
+if (CAST_MODE) {
+  startEl.remove();
+  document.body.classList.add("cast");
+  const s = document.createElement("script");
+  s.src = "https://www.gstatic.com/cast/sdk/libs/caf_receiver/v3/cast_receiver_framework.js";
+  s.onload = () => {
+    const context = cast.framework.CastReceiverContext.getInstance();
+    context.addCustomMessageListener(window.CAST_NS, (e) => {
+      const data = typeof e.data === "string" ? JSON.parse(e.data) : e.data;
+      handle(data);
+    });
+    const opts = new cast.framework.CastReceiverOptions();
+    opts.disableIdleTimeout = true; // there's no video, so don't shut down after 5 minutes
+    opts.customNamespaces = { [window.CAST_NS]: cast.framework.system.MessageType.JSON };
+    context.start(opts);
+  };
+  document.head.appendChild(s);
+  render();
+} else {
+  startEl.addEventListener("click", () => {
+    Sfx.unlock();
+    goFullscreen();
+    startEl.remove();
+  });
+  document.addEventListener("dblclick", () => {
+    if (document.fullscreenElement) document.exitFullscreen();
+    else goFullscreen();
+  });
+  Local.listen(handle);
+  render();
+}
 
 function goFullscreen() {
   try {
@@ -26,107 +64,76 @@ function goFullscreen() {
   } catch (e) {}
 }
 
-Sync.listen(
-  (s) => {
-    state = s;
-    render();
-  },
-  (ev) => {
-    if (ev.type === "sfx") Sfx.play(ev.name);
-  }
-);
-
 function render() {
+  if (!view) {
+    main.innerHTML = `<div class="splash"><h1>Brain Damage Jeopardy</h1><h2>${
+      CAST_MODE ? "Connected. Waiting for the host..." : "Waiting for the host screen..."
+    }</h2></div>`;
+    return;
+  }
   renderScores();
-  const game = findGame(state.gameId);
-  const key = JSON.stringify([state.screen, state.gameId, state.used, state.firstAnswer]);
+  const s = view.screen;
+  const key = JSON.stringify(s);
   if (key === lastMainKey) return;
   lastMainKey = key;
   anim = null;
-
-  const s = state.screen || { type: "splash" };
-  const views = { splash, board, clue, final, wheel, coin, dragon, scores: leaderboard };
-  main.innerHTML = (views[s.type] || board)(s, game);
-  if (s.type === "wheel") startWheel(s);
-  if (s.type === "coin" || s.type === "dragon") startCoin(s);
+  const views = { splash, board, clue, final, coin, scores: leaderboard };
+  main.innerHTML = (views[s.type] || splash)(s);
+  if (s.type === "coin") startCoin(s);
 }
 
 // ---------- Views ----------
 
-function splash(s, game) {
+function splash() {
   return `<div class="splash">
-    <h1>${esc(game.title)}</h1>
+    <h1>${esc(view.title || "Brain Damage Jeopardy")}</h1>
     <h2>The trivia game where being smart will not help you</h2>
     <ol>
       <li><b>Say "DING"</b> out loud to answer.</li>
       <li>The host is always right. <b>Especially when wrong.</b></li>
       <li>Points are made up and will be taken away.</li>
       <li>Complaining costs <b>100 points</b>.</li>
-      <li>There is a dragon.</li>
+      <li>There is no rule 5. <b>Minus 100 for reading it.</b></li>
     </ol>
   </div>`;
 }
 
-function board(s, game) {
-  let html = `<div class="board">`;
-  game.categories.forEach((c) => (html += `<div class="cell cat">${esc(c.name)}</div>`));
+function board(s) {
+  const n = s.cats.length || 1;
+  let html = `<div class="board" style="grid-template-columns:repeat(${n},1fr)">`;
+  s.cats.forEach((c) => (html += `<div class="cell cat">${esc(c.name)}</div>`));
   for (let r = 0; r < 5; r++) {
-    game.categories.forEach((c, ci) => {
-      const used = state.used[clueKey(game.id, ci, r)];
-      html += `<div class="cell val ${used ? "used" : ""}">${used ? "" : clueValue(r)}</div>`;
+    s.cats.forEach((c) => {
+      const cell = c.cells[r];
+      if (!cell) html += `<div class="cell val used"></div>`;
+      else html += `<div class="cell val ${cell.used ? "used" : ""}">${cell.used ? "" : cell.value}</div>`;
     });
   }
   return html + `</div>`;
 }
 
 function clue(s) {
-  const { cat, clue, value } = clueFor(state, s.c, s.r);
-  const kind = clue.kind || "q";
-  const badge = {
-    chaos: "CHAOS",
-    minigame: "MINIGAME",
-    coin: "HEADS OR TAILS",
-    callback: "MEMORY TEST",
-  }[kind];
-  const huge = kind === "chaos" && clue.q.length < 22;
-  const long = clue.q.length > 120;
+  const huge = s.badge === "CHAOS" && s.q.length < 22;
+  const long = s.q.length > 120;
   let html = `<div class="clue">
-    <div class="tag">${esc(cat.name)} &middot; <b>${value}</b></div>
-    ${badge ? `<div class="kind-badge">${badge}</div>` : ""}
-    <div class="q ${huge ? "huge" : ""} ${long ? "long" : ""}">${fmt(clue.q)}</div>`;
-  if (s.stage >= 1 && kind !== "chaos") html += `<div class="answer">${fmt(answerFor(state, clue))}</div>`;
-  if (s.stage >= 2 && clue.reward) html += `<div class="twist">${fmt(clue.reward)}</div>`;
+    <div class="tag">${esc(s.cat)} &middot; <b>${s.value}</b></div>
+    ${s.badge ? `<div class="kind-badge">${esc(s.badge)}</div>` : ""}
+    <div class="q ${huge ? "huge" : ""} ${long ? "long" : ""}">${fmt(s.q)}</div>`;
+  if (s.a != null) html += `<div class="answer">${fmt(s.a)}</div>`;
+  if (s.twist) html += `<div class="twist">${fmt(s.twist)}</div>`;
   return html + `</div>`;
 }
 
-function final(s, game) {
-  const f = game.final;
-  let html = `<div class="clue">
-    <div class="tag"><b>Final Jeopardy</b></div>`;
+function final(s) {
+  let html = `<div class="clue"><div class="tag"><b>Final Jeopardy</b></div>`;
   if (s.stage === 0) {
-    html += `<div class="kind-badge">PLACE YOUR BETS</div>
-      <div class="q huge">${esc(f.category)}</div>`;
+    html += `<div class="kind-badge">PLACE YOUR BETS</div><div class="q huge">${esc(s.category)}</div>`;
   } else {
-    html += `<div class="tag" style="top:7vh">${esc(f.category)}</div>
-      <div class="q ${f.q.length < 22 ? "huge" : ""}">${fmt(f.q)}</div>`;
-    if (s.stage >= 2) html += `<div class="answer">${fmt(answerFor(state, f))}</div>`;
+    html += `<div class="tag" style="top:7vh">${esc(s.category)}</div>
+      <div class="q ${s.q.length < 22 ? "huge" : ""}">${fmt(s.q)}</div>`;
+    if (s.a != null) html += `<div class="answer">${fmt(s.a)}</div>`;
   }
   return html + `</div>`;
-}
-
-function wheel(s) {
-  const w = window.WHEELS[s.wheel];
-  return `<div class="wheel-stage">
-    <div class="wheel-wrap">
-      <div class="pointer"></div>
-      <div class="wheel-rot" id="wheelRot">${wheelSVG(s.wheel)}</div>
-    </div>
-    <div class="wheel-side">
-      <div class="who">${s.player ? esc(s.player) + " spins" : "Spinning"}</div>
-      <div class="title ${s.wheel}">${esc(w.name)}</div>
-      <div id="wheelResult"></div>
-    </div>
-  </div>`;
 }
 
 function coin(s) {
@@ -140,19 +147,8 @@ function coin(s) {
   </div>`;
 }
 
-function dragon(s) {
-  return `<div class="coin-stage">
-    <div class="coin-label">The dragon stirs... heads, it attacks the leader.</div>
-    <div class="coin" id="coin">
-      <div class="face heads">H</div>
-      <div class="face tails">T</div>
-    </div>
-    <div class="coin-result" id="coinResult"></div>
-  </div>`;
-}
-
 function leaderboard() {
-  const sorted = [...state.players].sort((a, b) => b.score - a.score);
+  const sorted = [...view.teams].sort((a, b) => b.score - a.score);
   return `<div class="leader">
     <h1>STANDINGS</h1>
     ${sorted
@@ -169,10 +165,11 @@ function leaderboard() {
 // ---------- Scores bar ----------
 
 function renderScores() {
-  const ids = state.players.map((p) => p.id + p.name).join("|");
+  const teams = view.teams || [];
+  const ids = teams.map((p) => p.id + p.name).join("|");
   if (scoresEl.dataset.ids !== ids) {
     scoresEl.dataset.ids = ids;
-    scoresEl.innerHTML = state.players
+    scoresEl.innerHTML = teams
       .map(
         (p) => `<div class="tv-score" data-id="${p.id}">
         <div class="name">${esc(p.name)}</div>
@@ -181,7 +178,7 @@ function renderScores() {
       )
       .join("");
   }
-  state.players.forEach((p) => {
+  teams.forEach((p) => {
     const el = scoresEl.querySelector(`[data-id="${p.id}"]`);
     if (!el) return;
     const pts = el.querySelector(".pts");
@@ -200,75 +197,35 @@ function renderScores() {
     }
     lastScores[p.id] = p.score;
   });
-  scoresEl.style.display = state.screen && state.screen.type === "scores" ? "none" : "";
+  scoresEl.style.display = view.screen.type === "scores" ? "none" : "";
 }
 
-// ---------- Animations ----------
+// ---------- Coin ----------
 
-function startWheel(s) {
-  const w = window.WHEELS[s.wheel];
-  const n = w.segments.length;
-  const finalAngle = wheelFinalAngle(n, s.idx, s.start);
-  const seg = 360 / n;
-  const rot = document.getElementById("wheelRot");
-  const already = Date.now() - s.start >= SPIN_MS;
-  let lastSeg = null;
-  const me = {};
-  anim = me;
-
-  function frame() {
-    if (anim !== me) return;
-    const t = Math.min(1, (Date.now() - s.start) / SPIN_MS);
-    const angle = finalAngle * easeOut(t);
-    rot.style.transform = `rotate(${angle}deg)`;
-    const current = Math.floor((angle + seg / 2) / seg);
-    if (lastSeg !== null && current !== lastSeg && !already) Sfx.play("tick");
-    lastSeg = current;
-    if (t < 1) return requestAnimationFrame(frame);
-    const landed = w.segments[s.idx];
-    document.getElementById("wheelResult").innerHTML =
-      `<div class="result">${esc(landed.label)}</div>` +
-      (landed.reveal ? `<div class="result-small">${esc(landed.reveal)}</div>` : "");
-    if (!already) Sfx.play(s.wheel === "good" ? "correct" : "sad");
-  }
-  requestAnimationFrame(frame);
+function easeOut(t) {
+  return 1 - Math.pow(1 - t, 4);
 }
 
 function startCoin(s) {
+  // The phone's clock and the TV's clock don't agree, so the TV times the flip
+  // from when it first heard about it.
+  if (!coinStarts[s.id]) coinStarts[s.id] = Date.now();
+  const start = coinStarts[s.id];
   const coinEl = document.getElementById("coin");
   const tails = s.result === "tails";
   const finalAngle = 360 * 8 + (tails ? 180 : 0);
-  const already = Date.now() - s.start >= COIN_MS;
+  const already = Date.now() - start >= COIN_MS;
   const me = {};
   anim = me;
-  if (!already) Sfx.play("drumroll");
 
   function frame() {
     if (anim !== me) return;
-    const t = Math.min(1, (Date.now() - s.start) / COIN_MS);
+    const t = Math.min(1, (Date.now() - start) / COIN_MS);
     const angle = finalAngle * easeOut(t);
     const hop = Math.sin(Math.PI * Math.min(1, t * 1.15)) * 18;
     coinEl.style.transform = `translateY(${-hop}vh) rotateY(${angle}deg)`;
     if (t < 1) return requestAnimationFrame(frame);
-    const out = document.getElementById("coinResult");
-    if (s.type === "dragon") {
-      if (tails) {
-        out.innerHTML = `<div class="dragon-emoji sleep">🐉</div><div class="result">THE DRAGON SLEEPS</div>`;
-        if (!already) Sfx.play("whoosh");
-      } else {
-        out.innerHTML = `<div class="dragon-emoji">🐉</div><div class="result">THE DRAGON ATTACKS ${esc(
-          (s.target || "the leader").toUpperCase()
-        )}!</div><div class="result-small">Spin the Bad Wheel.</div>`;
-        if (!already) Sfx.play("roar");
-      }
-      coinEl.style.display = "none";
-      document.querySelector(".coin-label").style.display = "none";
-    } else {
-      out.innerHTML = `<div class="result">${tails ? "TAILS" : "HEADS"}</div>`;
-      if (!already) Sfx.play("reveal");
-    }
+    document.getElementById("coinResult").innerHTML = `<div class="result">${tails ? "TAILS" : "HEADS"}</div>`;
   }
   requestAnimationFrame(frame);
 }
-
-render();

@@ -2,19 +2,21 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#070b33" />
     <title>Jeopardy - Host</title>
     <link rel="stylesheet" href="css/style.css" />
   </head>
   <body class="host">
     <div class="host-top">
       <span class="brand">HOST</span>
-      <select id="gamePick" title="Which board"></select>
-      <button class="btn primary" id="openTv">Open TV window</button>
+      <span class="cast-wrap" id="castWrap" hidden>
+        <google-cast-launcher id="castBtn"></google-cast-launcher>
+      </span>
       <span class="tv-status" id="tvStatus"></span>
       <span class="spacer"></span>
-      <label class="tv-status"><input type="checkbox" id="blur" /> Blur answers (hover to peek)</label>
-      <button class="btn ghost small" id="reset">New game night</button>
+      <a class="btn small" href="editor.html">✎ Questions</a>
+      <button class="btn small ghost hide-phone" id="openTv" title="For a laptop plugged into the TV">TV window</button>
     </div>
 
     <div class="host-grid">
@@ -22,93 +24,88 @@
         <div class="panel">
           <h3>
             <span class="grow">Board</span>
-            <span class="hint">Click a square to put it on the TV</span>
+            <span class="hint hide-phone">Tap a square to put it on the TV</span>
           </h3>
           <div class="hboard" id="hboard"></div>
           <div class="row" style="margin-top: 12px">
-            <span class="hmeta">TV shows:</span>
-            <button class="btn small" data-screen="splash">Title + rules</button>
+            <span class="hmeta">TV:</span>
+            <button class="btn small" data-screen="splash">Title</button>
             <button class="btn small" data-screen="board">Board</button>
             <button class="btn small" data-screen="scores">Standings</button>
             <button class="btn small" id="finalBtn">Final Jeopardy</button>
           </div>
         </div>
 
-        <div class="panel" id="live"></div>
+        <div class="sheet-backdrop" id="backdrop"></div>
+        <div class="panel live" id="live"></div>
       </div>
 
       <div>
         <div class="panel">
           <h3>
-            <span class="grow">Players</span>
-            <button class="btn small" id="undo">Undo last score change</button>
-            <button class="btn small" id="addPlayer">+ Player</button>
+            <span class="grow">Teams</span>
+            <span class="stepper">
+              <button class="btn small" id="teamMinus" aria-label="Fewer teams">−</button>
+              <b id="teamCount"></b>
+              <button class="btn small" id="teamPlus" aria-label="More teams">+</button>
+            </span>
           </h3>
-          <div id="players"></div>
+          <div id="teams"></div>
+          <div class="row" style="margin-top: 10px">
+            <button class="btn small" id="undo">Undo last score change</button>
+            <span class="spacer"></span>
+            <button class="btn small ghost" id="reset">New game</button>
+          </div>
         </div>
 
         <div class="panel">
-          <h3>Chaos</h3>
+          <h3>Coin flip</h3>
           <div class="row">
-            <select id="who" title="Who is spinning"></select>
-          </div>
-          <div class="row">
-            <button class="btn good" id="spinGood">Spin Good Wheel</button>
-            <select id="rigGood" title="Secretly pick the result"></select>
-          </div>
-          <div class="row">
-            <button class="btn bad" id="spinBad">Spin Bad Wheel</button>
-            <select id="rigBad" title="Secretly pick the result"></select>
-          </div>
-          <div class="row">
-            <button class="btn" id="coinBtn">Flip coin</button>
-            <button class="btn" id="dragonBtn">🐉 Dragon's turn</button>
+            <button class="btn primary" id="coinBtn">Flip coin</button>
             <select id="rigCoin" title="Secretly pick the result">
               <option value="">Fair coin</option>
               <option value="heads">Rigged: heads</option>
               <option value="tails">Rigged: tails</option>
             </select>
+            <button class="btn small" id="backBtn" hidden>← Back</button>
           </div>
           <div class="landed" id="landed" hidden></div>
-          <div class="row" style="margin-top: 10px">
-            <button class="btn small" id="backBtn" hidden>← Back to what was on before</button>
-          </div>
         </div>
 
         <div class="panel">
-          <h3>Sounds</h3>
+          <h3>Sounds <span class="grow"></span>
+            <label class="tv-status"><input type="checkbox" id="localSound" /> also play here</label>
+          </h3>
+          <div class="sound-grid" id="sounds"></div>
+          <p class="hint hide-phone" style="margin-top: 10px">
+            Keys: <kbd>Space</kbd> reveal next &middot; <kbd>Esc</kbd> done &middot; <kbd>D</kbd> ding &middot;
+            <kbd>C</kbd> correct &middot; <kbd>X</kbd> wrong &middot; <kbd>S</kbd> sad trombone &middot;
+            <kbd>A</kbd> airhorn &middot; <kbd>B</kbd> boom
+          </p>
+        </div>
+
+        <div class="panel" id="castSetup" hidden>
+          <h3>Chromecast setup</h3>
+          <p class="hint">
+            Paste the Cast App ID here once it's registered. It's saved on this device.
+          </p>
           <div class="row">
-            <button class="btn small" data-sfx="ding">Ding</button>
-            <button class="btn small" data-sfx="correct">Correct</button>
-            <button class="btn small" data-sfx="buzzer">Wrong buzzer</button>
-            <button class="btn small" data-sfx="sad">Sad trombone</button>
-            <button class="btn small" data-sfx="airhorn">Airhorn</button>
-            <button class="btn small" data-sfx="drumroll">Drumroll</button>
+            <input type="text" id="castId" placeholder="e.g. A1B2C3D4" style="flex: 1" />
+            <button class="btn" id="castSave">Save</button>
           </div>
-          <p class="hint">
-            Keys: <kbd>Space</kbd> reveal next &middot; <kbd>Esc</kbd> done, back to board &middot;
-            <kbd>D</kbd> ding &middot; <kbd>C</kbd> correct &middot; <kbd>X</kbd> wrong buzzer &middot;
-            <kbd>S</kbd> sad trombone &middot; <kbd>A</kbd> airhorn
-          </p>
         </div>
 
         <div class="panel">
-          <h3>How to run it</h3>
-          <p class="hint">
-            1. Click <b>Open TV window</b> and drag that window onto the TV (or cast that tab). Click it once
-            so it goes fullscreen with sound.<br />
-            2. Players pick a category and value. Click that square. The question shows on the TV, the answer
-            only shows here.<br />
-            3. Someone says "ding", you rule on it, add or take points, then hit <b>Reveal</b>.<br />
-            4. Suggested chaos: right answer = spin the Good Wheel. Every few turns, give the dragon a turn.
-            Rig anything you want. Nobody can tell.
-          </p>
+          <h3>Settings</h3>
+          <label class="tv-status"><input type="checkbox" id="blur" /> Blur answers until I hover or tap them</label>
         </div>
       </div>
     </div>
 
-    <script src="js/games.js"></script>
+    <script src="js/config.js"></script>
+    <script src="js/default-library.js"></script>
     <script src="js/shared.js"></script>
     <script src="js/host.js"></script>
+    <script src="https://www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1"></script>
   </body>
 </html>

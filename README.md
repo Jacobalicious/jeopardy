@@ -1,21 +1,26 @@
 # Brain Damage Jeopardy
 
 A deliberately terrible trivia game show, inspired by Magic the Noah's trivia videos.
-Plain HTML/JS, no build step. It runs on any static host, including GitHub Pages.
+Plain HTML/JS, no build step, hosted on GitHub Pages.
 
-## Running it
+## Pages
 
-- **Host screen:** `index.html`. It has the answers, the scores and every control.
-- **TV screen:** `tv.html`, opened with the **Open TV window** button. It only shows what the host puts up.
+- `index.html` — **host screen** (phone or laptop). Answers, scores, coin, sounds.
+- `tv.html` — **TV screen**. Shows only what the host puts up.
+  - `tv.html?cast=1` is the Chromecast receiver version.
+- `editor.html` — **question bank**. Tick which questions go on the board, edit, add.
 
-Both windows have to be in the same browser on the same computer. They talk to each other directly.
-To get the TV screen onto the TV, either:
-- plug in HDMI, drag the TV window to the TV and click it to go fullscreen, or
-- in Chrome, right-click the TV window → **Cast...** → pick the TV → cast the tab.
+## Getting it on the TV
 
-Locally: `python -m http.server 8321`, then open http://localhost:8321.
+- **Phone + Chromecast:** tap the cast icon on the host screen. Needs a registered Cast
+  receiver app (App ID goes in `js/config.js` or is pasted into the host screen).
+- **Laptop + HDMI:** "TV window" button, drag it to the TV, click it to go fullscreen.
 
-## Editing questions
+## Questions
 
-Everything lives in `js/games.js`. Each game has 6 categories × 5 clues plus a Final.
-The wheels are at the bottom of the same file.
+Built-in questions live in `js/default-library.js`. Edits made in the editor are saved in
+that browser; "Send to phone" makes a link that carries them to another device, and
+"Download backup file" can be pasted over `default-library.js` to make them permanent.
+
+Sounds are synthesized in `js/shared.js`. Any of them can be replaced with a real audio
+file via `SOUND_FILES` in `js/config.js`.
