@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Jeopardy - Host</title>
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body class="host">
+    <div class="host-top">
+      <span class="brand">HOST</span>
+      <select id="gamePick" title="Which board"></select>
+      <button class="btn primary" id="openTv">Open TV window</button>
+      <span class="tv-status" id="tvStatus"></span>
+      <span class="spacer"></span>
+      <label class="tv-status"><input type="checkbox" id="blur" /> Blur answers (hover to peek)</label>
+      <button class="btn ghost small" id="reset">New game night</button>
+    </div>
+
+    <div class="host-grid">
+      <div>
+        <div class="panel">
+          <h3>
+            <span class="grow">Board</span>
+            <span class="hint">Click a square to put it on the TV</span>
+          </h3>
+          <div class="hboard" id="hboard"></div>
+          <div class="row" style="margin-top: 12px">
+            <span class="hmeta">TV shows:</span>
+            <button class="btn small" data-screen="splash">Title + rules</button>
+            <button class="btn small" data-screen="board">Board</button>
+            <button class="btn small" data-screen="scores">Standings</button>
+            <button class="btn small" id="finalBtn">Final Jeopardy</button>
+          </div>
+        </div>
+
+        <div class="panel" id="live"></div>
+      </div>
+
+      <div>
+        <div class="panel">
+          <h3>
+            <span class="grow">Players</span>
+            <button class="btn small" id="undo">Undo last score change</button>
+            <button class="btn small" id="addPlayer">+ Player</button>
+          </h3>
+          <div id="players"></div>
+        </div>
+
+        <div class="panel">
+          <h3>Chaos</h3>
+          <div class="row">
+            <select id="who" title="Who is spinning"></select>
+          </div>
+          <div class="row">
+            <button class="btn good" id="spinGood">Spin Good Wheel</button>
+            <select id="rigGood" title="Secretly pick the result"></select>
+          </div>
+          <div class="row">
+            <button class="btn bad" id="spinBad">Spin Bad Wheel</button>
+            <select id="rigBad" title="Secretly pick the result"></select>
+          </div>
+          <div class="row">
+            <button class="btn" id="coinBtn">Flip coin</button>
+            <button class="btn" id="dragonBtn">🐉 Dragon's turn</button>
+            <select id="rigCoin" title="Secretly pick the result">
+              <option value="">Fair coin</option>
+              <option value="heads">Rigged: heads</option>
+              <option value="tails">Rigged: tails</option>
+            </select>
+          </div>
+          <div class="landed" id="landed" hidden></div>
+          <div class="row" style="margin-top: 10px">
+            <button class="btn small" id="backBtn" hidden>← Back to what was on before</button>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h3>Sounds</h3>
+          <div class="row">
+            <button class="btn small" data-sfx="ding">Ding</button>
+            <button class="btn small" data-sfx="correct">Correct</button>
+            <button class="btn small" data-sfx="buzzer">Wrong buzzer</button>
+            <button class="btn small" data-sfx="sad">Sad trombone</button>
+            <button class="btn small" data-sfx="airhorn">Airhorn</button>
+            <button class="btn small" data-sfx="drumroll">Drumroll</button>
+          </div>
+          <p class="hint">
+            Keys: <kbd>Space</kbd> reveal next &middot; <kbd>Esc</kbd> done, back to board &middot;
+            <kbd>D</kbd> ding &middot; <kbd>C</kbd> correct &middot; <kbd>X</kbd> wrong buzzer &middot;
+            <kbd>S</kbd> sad trombone &middot; <kbd>A</kbd> airhorn
+          </p>
+        </div>
+
+        <div class="panel">
+          <h3>How to run it</h3>
+          <p class="hint">
+            1. Click <b>Open TV window</b> and drag that window onto the TV (or cast that tab). Click it once
+            so it goes fullscreen with sound.<br />
+            2. Players pick a category and value. Click that square. The question shows on the TV, the answer
+            only shows here.<br />
+            3. Someone says "ding", you rule on it, add or take points, then hit <b>Reveal</b>.<br />
+            4. Suggested chaos: right answer = spin the Good Wheel. Every few turns, give the dragon a turn.
+            Rig anything you want. Nobody can tell.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <script src="js/games.js"></script>
+    <script src="js/shared.js"></script>
+    <script src="js/host.js"></script>
+  </body>
+</html>
