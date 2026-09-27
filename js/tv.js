@@ -100,9 +100,10 @@ function splash() {
 
 function board(s) {
   const n = s.cats.length || 1;
-  let html = `<div class="board" style="grid-template-columns:repeat(${n},1fr)">`;
+  const rows = Math.max(5, ...s.cats.map((c) => c.cells.length));
+  let html = `<div class="board" data-rows="${rows}" style="grid-template-columns:repeat(${n},1fr)">`;
   s.cats.forEach((c) => (html += `<div class="cell cat">${esc(c.name)}</div>`));
-  for (let r = 0; r < 5; r++) {
+  for (let r = 0; r < rows; r++) {
     s.cats.forEach((c) => {
       const cell = c.cells[r];
       if (!cell) html += `<div class="cell val used"></div>`;

@@ -53,7 +53,7 @@ function usedCount(c) {
 function valueOf(c, q) {
   if (!q.use) return null;
   const i = c.questions.filter((x) => x.use).indexOf(q);
-  return i < 5 ? VALUES[i] : null;
+  return i < rowsOf(lib) ? (i + 1) * 100 : null;
 }
 
 function newId(prefix) {
@@ -90,12 +90,12 @@ function renderSide() {
     <div class="side-label"><span>Categories</span><span>${lib.categories.length}</span></div>`;
   lib.categories.forEach((c, i) => {
     const n = usedCount(c);
-    const warn = c.onBoard && n < 5;
+    const warn = c.onBoard && n < rowsOf(lib);
     html += `<div class="nav ${page.type === "cat" && page.catId === c.id ? "active" : ""}" data-cat="${c.id}" role="button" tabindex="0">
       <span class="switch ${c.onBoard ? "on" : ""}" data-toggle="${c.id}" title="${c.onBoard ? "On the board" : "Not on the board"}"></span>
       <span class="nm">${esc(c.name)}</span>
       <span class="order"><span data-cup="${i}" title="Move up">▲</span><span data-cdown="${i}" title="Move down">▼</span></span>
-      <span class="ct ${warn ? "warn" : ""}" title="ticked / total">${Math.min(n, 5)}/${c.questions.length}</span>
+      <span class="ct ${warn ? "warn" : ""}" title="ticked / total">${Math.min(n, rowsOf(lib))}/${c.questions.length}</span>
     </div>`;
   });
   html += `<button class="btn add-cat" id="addCat">+ New category</button>`;
@@ -154,11 +154,17 @@ function boardPage() {
   const cats = board.categories;
   const total = cats.reduce((n, c) => n + c.clues.length, 0);
   const final = board.final;
-  const short = cats.filter((c) => c.clues.length < 5);
+  const rows = rowsOf(lib);
+  const short = cats.filter((c) => c.clues.length < rows);
   let html = `
     <div class="page-head"><h1>The Board</h1></div>
-    <p class="sub">Switch categories on in the list on the left. In each one, the first five ticked questions go on the
-      board, worth 100 to 500 in order. Click anything below to edit it.</p>
+    <p class="sub">Switch categories on in the list on the left. In each one, the first ${rows} ticked questions go on the
+      board, worth 100 to ${rows * 100} in order. Click anything below to edit it.</p>
+    <div class="row" style="margin-bottom:18px">
+      <span class="hmeta">Questions per category:</span>
+      <button class="btn small ${rows === 5 ? "primary" : ""}" data-rows="5">5</button>
+      <button class="btn small ${rows === 6 ? "primary" : ""}" data-rows="6">6</button>
+    </div>
     <div class="stat-row">
       <div class="stat"><b>${cats.length}</b><span>categories on</span></div>
       <div class="stat"><b>${total}</b><span>questions on the board</span></div>
@@ -166,11 +172,11 @@ function boardPage() {
     </div>`;
   if (!cats.length) html += `<div class="warnbox">No categories are on yet. Flip a switch in the list to add one.</div>`;
   if (cats.length > 6) html += `<div class="warnbox">${cats.length} categories is a lot for a TV. 6 is classic Jeopardy. It'll still work.</div>`;
-  short.forEach((c) => (html += `<div class="warnbox"><b>${esc(c.name)}</b> only has ${c.clues.length} ticked question${c.clues.length === 1 ? "" : "s"}. Tick ${5 - c.clues.length} more.</div>`));
+  short.forEach((c) => (html += `<div class="warnbox"><b>${esc(c.name)}</b> only has ${c.clues.length} ticked question${c.clues.length === 1 ? "" : "s"}. Tick ${rows - c.clues.length} more.</div>`));
   if (cats.length) {
     html += `<div class="mini-board" style="grid-template-columns:repeat(${cats.length}, minmax(110px,1fr))">`;
     cats.forEach((c) => (html += `<div class="mb-cat" data-open-cat="${c.id}">${esc(c.name)}</div>`));
-    for (let r = 0; r < 5; r++) {
+    for (let r = 0; r < rows; r++) {
       cats.forEach((c) => {
         const q = c.clues[r];
         html += q
@@ -193,6 +199,7 @@ function catPage() {
   const c = catById(page.catId);
   if (!c) return boardPage();
   const n = usedCount(c);
+  const rows = rowsOf(lib);
   let html = `
     <div class="page-head">
       <input class="title" id="catName" value="${esc(c.name)}" aria-label="Category name" />
@@ -200,8 +207,8 @@ function catPage() {
     c.onBoard ? "On the board" : "Not on the board"
   }</span>
     </div>
-    <p class="sub">Tick the questions you want. The first five ticked become 100, 200, 300, 400, 500. Use the arrows to
-      change the order. ${n > 5 ? `<b>${n} are ticked</b>, so the last ${n - 5} are spares that won't show.` : ""}</p>`;
+    <p class="sub">Tick the questions you want. The first ${rows} ticked become 100, 200, 300 and so on up to ${rows * 100}. Use
+      the arrows to change the order. ${n > rows ? `<b>${n} are ticked</b>, so the last ${n - rows} are spares that won't show.` : ""}</p>`;
   if (!c.questions.length) html += `<div class="empty-state">No questions yet.</div>`;
   c.questions.forEach((q, i) => (html += card(c, q, i)));
   html += `<button class="add-q" id="addQ">+ Add a question</button>
@@ -332,6 +339,11 @@ $("main").addEventListener("click", (e) => {
     return;
   }
   if (t.closest("[data-go-final]")) return go({ type: "final" });
+  if (t.dataset.rows) {
+    lib.rows = Number(t.dataset.rows);
+    save();
+    return render();
+  }
 
   if (t.closest("[data-toggle-board]")) {
     const c = catById(page.catId);

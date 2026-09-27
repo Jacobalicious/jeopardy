@@ -136,6 +136,10 @@ body.tv {
   display: grid;
   grid-template-columns: repeat(6, 1fr);
   grid-template-rows: 1.25fr repeat(5, 1fr);
+}
+
+.board[data-rows="6"] {
+  grid-template-rows: 1.1fr repeat(6, 1fr);
   gap: 0.6vh;
   background: #000;
   padding: 0.6vh;
@@ -991,4 +995,8 @@ a.btn {
   body.blur .secret:active {
     filter: none;
   }
+}
+
+.board[data-rows="6"] .cell.val {
+  font-size: 6vh;
 }

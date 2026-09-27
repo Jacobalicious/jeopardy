@@ -164,7 +164,7 @@ function renderBoard() {
   const icons = { chaos: "⚡", minigame: "🎮", coin: "🪙", callback: "🧠" };
   let html = "";
   board.categories.forEach((c) => (html += `<div class="hcell cat">${esc(c.name)}</div>`));
-  for (let r = 0; r < 5; r++) {
+  for (let r = 0; r < board.rows; r++) {
     board.categories.forEach((c) => {
       const q = c.clues[r];
       if (!q) return (html += `<div class="hcell empty"></div>`);

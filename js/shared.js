@@ -1,7 +1,7 @@
 // Shared by the host, the TV and the editor:
 // the question library, game state, window-to-window syncing, and sounds.
 
-const LIB_KEY = "jeopardy-library-v2";
+const LIB_KEY = "jeopardy-library-v3";
 const STATE_KEY = "jeopardy-game-v2";
 const VIEW_KEY = "jeopardy-view-v2";
 const MSG_KEY = "jeopardy-msg-v2";
@@ -41,10 +41,13 @@ function saveLibrary(lib) {
   } catch (e) {}
 }
 
-const VALUES = [100, 200, 300, 400, 500];
+// How many questions per category go on the board (5 or 6).
+function rowsOf(lib) {
+  return lib.rows === 5 ? 5 : 6;
+}
 
 // What's actually on the board: the categories switched on, and the first
-// five ticked questions in each, worth 100 to 500.
+// few ticked questions in each, worth 100, 200, 300...
 function buildBoard(lib) {
   const categories = lib.categories
     .filter((c) => c.onBoard)
@@ -53,11 +56,11 @@ function buildBoard(lib) {
       name: c.name,
       clues: c.questions
         .filter((q) => q.use)
-        .slice(0, 5)
-        .map((q, i) => ({ ...q, value: VALUES[i] })),
+        .slice(0, rowsOf(lib))
+        .map((q, i) => ({ ...q, value: (i + 1) * 100 })),
     }));
   const final = lib.finals.find((f) => f.id === lib.finalId) || lib.finals[0] || null;
-  return { title: lib.title, categories, final };
+  return { title: lib.title, rows: rowsOf(lib), categories, final };
 }
 
 function answerFor(game, clue) {
