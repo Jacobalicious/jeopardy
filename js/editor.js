@@ -22,11 +22,13 @@ const KIND_LABEL = Object.fromEntries(KINDS.map(([k, l]) => [k, l]));
 
 let saveTimer = null;
 function save() {
-  saveLibrary(lib);
+  const ok = saveLibrary(lib);
   const el = $("saved");
   el.classList.add("show");
   clearTimeout(saveTimer);
   saveTimer = setTimeout(() => el.classList.remove("show"), 1200);
+  if (!ok) toast("Couldn't save: this device is out of space. Remove some uploaded pictures.");
+  return ok;
 }
 
 function toast(msg, action) {
@@ -162,8 +164,11 @@ function boardPage() {
       board, worth 100 to ${rows * 100} in order. Click anything below to edit it.</p>
     <div class="row" style="margin-bottom:18px">
       <span class="hmeta">Questions per category:</span>
-      <button class="btn small ${rows === 5 ? "primary" : ""}" data-rows="5">5</button>
-      <button class="btn small ${rows === 6 ? "primary" : ""}" data-rows="6">6</button>
+      <span class="stepper">
+        <button class="btn small" data-rows="${rows - 1}" ${rows <= MIN_ROWS ? "disabled" : ""} aria-label="Fewer">−</button>
+        <b>${rows}</b>
+        <button class="btn small" data-rows="${rows + 1}" ${rows >= MAX_ROWS ? "disabled" : ""} aria-label="More">+</button>
+      </span>
     </div>
     <div class="stat-row">
       <div class="stat"><b>${cats.length}</b><span>categories on</span></div>
@@ -225,6 +230,7 @@ function card(c, q, i, opts = {}) {
   const twist = q.reward ? `<span class="tag-chip twist">has twist</span>` : "";
   const note = q.note ? `<span class="tag-chip">host note</span>` : "";
   const src = q.src ? `<span class="tag-chip">${esc(q.src)}</span>` : "";
+  const pic = q.img ? `<span class="tag-chip pic">🖼 picture</span>` : "";
   const catChip = opts.showCat ? `<span class="tag-chip cat">${esc(c.name)}</span>` : "";
   return `<div class="qcard ${q.use ? "" : "off"}" data-cat="${c.id}" data-q="${q.id}">
     <div class="pick">
@@ -234,7 +240,7 @@ function card(c, q, i, opts = {}) {
     <div class="qbody" data-act="edit">
       <div class="qt">${esc(q.q) || "<i>(empty question)</i>"}</div>
       <div class="at">${esc(q.a)}</div>
-      <div class="tags">${catChip}${kind}${twist}${note}${src}</div>
+      <div class="tags">${catChip}${pic}${kind}${twist}${note}${src}</div>
     </div>
     <div class="qacts">
       ${opts.showCat ? "" : `<button data-act="up" ${i === 0 ? "disabled" : ""} title="Move up">▲</button>
@@ -254,6 +260,7 @@ function editCard(c, q) {
       <label class="ans">Answer <small>(only you see it until you reveal it)</small><textarea data-f="a" rows="1">${esc(q.a)}</textarea></label>
       <label>Host note <small>(never shown on the TV: how to rule, what to say)</small><textarea data-f="note" rows="2">${esc(q.note)}</textarea></label>
       <label>Twist <small>(optional, revealed after the answer, e.g. "Reward: gain -100 points")</small><textarea data-f="reward" rows="1">${esc(q.reward)}</textarea></label>
+      ${picField(q)}
       <div class="two">
         <label>Type<select data-f="kind">${kindOpts}</select><small style="color:var(--muted)">${esc(kindHelp)}</small></label>
         <label>Category<select data-f="cat">${catOpts}</select></label>
@@ -268,6 +275,93 @@ function editCard(c, q) {
     </div>
   </div>`;
 }
+
+function picField(q) {
+  const link = q.img && !q.img.startsWith("data:") ? q.img : "";
+  return `<div class="pic-field">
+    <div class="pic-lbl">Picture <small>(optional, shown on the TV)</small></div>
+    ${q.img ? `<img class="pic-preview" src="${esc(q.img)}" alt="" />` : ""}
+    <div class="row">
+      <button class="btn" data-act="pic-upload">📷 ${q.img ? "Change picture" : "Upload picture"}</button>
+      ${q.img ? `<button class="btn bad" data-act="pic-remove">Remove</button>` : ""}
+    </div>
+    <input type="text" data-f="imgUrl" placeholder="...or paste a link to a picture" value="${esc(link)}" />
+    ${
+      q.img
+        ? `<label class="inline">Show it <select data-f="imgAt">
+            <option value="q" ${q.imgAt !== "a" ? "selected" : ""}>with the question</option>
+            <option value="a" ${q.imgAt === "a" ? "selected" : ""}>when the answer is revealed</option>
+          </select></label>`
+        : ""
+    }
+    <small class="pic-hint">Tip: you can also copy a picture and press Ctrl+V while editing.</small>
+  </div>`;
+}
+
+// Shrink a picture so lots of them fit in the browser's storage.
+async function compressImage(file) {
+  const url = URL.createObjectURL(file);
+  try {
+    const img = new Image();
+    await new Promise((res, rej) => {
+      img.onload = res;
+      img.onerror = rej;
+      img.src = url;
+    });
+    const scale = Math.min(1, 1024 / Math.max(img.width, img.height));
+    const c = document.createElement("canvas");
+    c.width = Math.round(img.width * scale);
+    c.height = Math.round(img.height * scale);
+    const g = c.getContext("2d");
+    g.fillStyle = "#fff";
+    g.fillRect(0, 0, c.width, c.height);
+    g.drawImage(img, 0, 0, c.width, c.height);
+    return c.toDataURL("image/jpeg", 0.78);
+  } finally {
+    URL.revokeObjectURL(url);
+  }
+}
+
+let picTarget = null;
+async function setPicture(q, file) {
+  if (!file || !file.type.startsWith("image/")) return;
+  const before = q.img;
+  try {
+    q.img = await compressImage(file);
+  } catch (e) {
+    return toast("Couldn't read that picture.");
+  }
+  if (!save()) {
+    if (before) q.img = before;
+    else delete q.img;
+    save();
+    toast("Out of space on this device. Remove some pictures, or use picture links instead.");
+  }
+  render();
+}
+
+function questionById(id) {
+  for (const c of lib.categories) {
+    const q = c.questions.find((x) => x.id === id);
+    if (q) return q;
+  }
+  return null;
+}
+
+$("picFile").onchange = (e) => {
+  const q = picTarget && questionById(picTarget);
+  if (q) setPicture(q, e.target.files[0]);
+  e.target.value = "";
+};
+
+document.addEventListener("paste", (e) => {
+  const q = editing && questionById(editing);
+  if (!q) return;
+  const item = [...(e.clipboardData ? e.clipboardData.items : [])].find((i) => i.type.startsWith("image/"));
+  if (!item) return;
+  e.preventDefault();
+  setPicture(q, item.getAsFile());
+});
 
 function finalPage() {
   let html = `
@@ -413,6 +507,15 @@ $("main").addEventListener("click", (e) => {
   const i = c.questions.findIndex((x) => x.id === qcard.dataset.q);
   const q = c.questions[i];
 
+  if (act === "pic-upload") {
+    picTarget = q.id;
+    $("picFile").click();
+    return;
+  }
+  if (act === "pic-remove") {
+    delete q.img;
+    delete q.imgAt;
+  }
   if (act === "use") q.use = !q.use;
   if (act === "up") move(c.questions, i, -1);
   if (act === "down") move(c.questions, i, 1);
@@ -473,6 +576,19 @@ $("main").addEventListener("input", (e) => {
     editing = null;
     return render();
   }
+  if (field === "imgUrl") {
+    const v = t.value.trim();
+    if (v) q.img = v;
+    else if (q.img && !q.img.startsWith("data:")) delete q.img;
+    save();
+    return;
+  }
+  if (field === "imgAt") {
+    if (t.value === "a") q.imgAt = "a";
+    else delete q.imgAt;
+    save();
+    return;
+  }
   if (field === "kind") {
     if (t.value === "q") delete q.kind;
     else q.kind = t.value;
@@ -481,6 +597,11 @@ $("main").addEventListener("input", (e) => {
   }
   q[field] = t.value;
   save();
+});
+
+// Show the preview once a picture link has been pasted or typed.
+$("main").addEventListener("change", (e) => {
+  if (e.target.dataset.f === "imgUrl") render();
 });
 
 // Grow textareas to fit.
@@ -549,7 +670,11 @@ $("resetBtn").onclick = () => {
 
 $("shareBtn").onclick = async () => {
   const base = location.href.replace(/editor\.html.*$/, "").replace(/#.*$/, "");
-  const link = base + "index.html#lib=" + (await packLibrary(lib));
+  const { lib: light, dropped } = withoutUploads(lib);
+  const link = base + "index.html#lib=" + (await packLibrary(light));
+  $("shareNote").textContent = dropped
+    ? `${dropped} uploaded picture${dropped === 1 ? " isn't" : "s aren't"} in the link (too big). Pictures added as links are included. To move uploads, use Download backup file.`
+    : "";
   $("shareLink").value = link;
   $("qr").innerHTML = "";
   try {

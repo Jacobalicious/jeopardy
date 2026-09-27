@@ -136,10 +136,6 @@ body.tv {
   display: grid;
   grid-template-columns: repeat(6, 1fr);
   grid-template-rows: 1.25fr repeat(5, 1fr);
-}
-
-.board[data-rows="6"] {
-  grid-template-rows: 1.1fr repeat(6, 1fr);
   gap: 0.6vh;
   background: #000;
   padding: 0.6vh;
@@ -169,7 +165,7 @@ body.tv {
 .cell.val {
   font-family: Anton, Impact, sans-serif;
   color: var(--gold);
-  font-size: 7vh;
+  font-size: var(--val, 7vh);
   text-shadow: 0.35vh 0.35vh 0 #000;
 }
 
@@ -232,6 +228,27 @@ body.tv {
   line-height: 1.2;
   text-shadow: 0.4vh 0.4vh 0 #000;
   max-width: 85vw;
+}
+
+.clue .qimg {
+  max-width: 80vw;
+  max-height: 44vh;
+  object-fit: contain;
+  background: #fff;
+  border: 0.6vh solid #000;
+  border-radius: 0.8vh;
+  margin: 3vh 0;
+  animation: slam 0.4s cubic-bezier(0.2, 1.8, 0.4, 1);
+}
+
+.clue.has-img .q {
+  font-size: 4.6vh;
+}
+
+.clue .img-wait {
+  color: var(--muted);
+  font-size: 3vh;
+  margin: 3vh 0;
 }
 
 .clue .q.long {
@@ -676,6 +693,16 @@ input[type="number"] {
   letter-spacing: 0.06em;
 }
 
+.hpic {
+  display: block;
+  max-width: 100%;
+  max-height: 200px;
+  object-fit: contain;
+  border-radius: 8px;
+  background: #fff;
+  margin-bottom: 10px;
+}
+
 .hanswer {
   background: #0c3b22;
   border: 1px solid #1bb35b;
@@ -997,6 +1024,4 @@ a.btn {
   }
 }
 
-.board[data-rows="6"] .cell.val {
-  font-size: 6vh;
-}
+

@@ -1,7 +1,7 @@
 // Shared by the host, the TV and the editor:
 // the question library, game state, window-to-window syncing, and sounds.
 
-const LIB_KEY = "jeopardy-library-v3";
+const LIB_KEY = "jeopardy-library-v4";
 const STATE_KEY = "jeopardy-game-v2";
 const VIEW_KEY = "jeopardy-view-v2";
 const MSG_KEY = "jeopardy-msg-v2";
@@ -35,15 +35,22 @@ function loadLibrary() {
   return JSON.parse(JSON.stringify(window.DEFAULT_LIBRARY));
 }
 
+// Returns false if the browser refused (usually: too many pictures).
 function saveLibrary(lib) {
   try {
     localStorage.setItem(LIB_KEY, JSON.stringify(lib));
-  } catch (e) {}
+    return true;
+  } catch (e) {
+    return false;
+  }
 }
 
-// How many questions per category go on the board (5 or 6).
+// How many questions per category go on the board.
+const MIN_ROWS = 3;
+const MAX_ROWS = 10;
 function rowsOf(lib) {
-  return lib.rows === 5 ? 5 : 6;
+  const n = Number(lib.rows) || 6;
+  return Math.min(MAX_ROWS, Math.max(MIN_ROWS, n));
 }
 
 // What's actually on the board: the categories switched on, and the first
@@ -71,6 +78,21 @@ function answerFor(game, clue) {
 }
 
 // ---------- Share links (library squeezed into a URL) ----------
+
+// Uploaded pictures are far too big for a link, so they're left out of it.
+function withoutUploads(lib) {
+  let dropped = 0;
+  const copy = JSON.parse(JSON.stringify(lib));
+  copy.categories.forEach((c) =>
+    c.questions.forEach((q) => {
+      if (q.img && q.img.startsWith("data:")) {
+        delete q.img;
+        dropped++;
+      }
+    })
+  );
+  return { lib: copy, dropped };
+}
 
 async function packLibrary(lib) {
   const stream = new Blob([JSON.stringify(lib)]).stream().pipeThrough(new CompressionStream("deflate-raw"));

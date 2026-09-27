@@ -58,6 +58,7 @@ window.__onGCastApiAvailable = (ok) => {
   ctx.addEventListener(cast.framework.CastContextEventType.SESSION_STATE_CHANGED, (e) => {
     const S = cast.framework.SessionState;
     if (e.sessionState === S.SESSION_STARTED || e.sessionState === S.SESSION_RESUMED) {
+      castImgs.clear();
       setTimeout(sendView, 300);
     }
     renderStatus();
@@ -68,9 +69,30 @@ window.__onGCastApiAvailable = (ok) => {
 };
 
 function sendView() {
-  const msg = { t: "view", view: buildView() };
-  Local.send(msg);
-  Cast.send(msg);
+  const view = buildView();
+  Local.send({ t: "view", view });
+  if (Cast.session()) Cast.send({ t: "view", view: castSafe(view) });
+}
+
+// Cast messages are capped at 64KB, so uploaded pictures go over in pieces
+// first, and the view just refers to them by id.
+const castImgs = new Set();
+function hashStr(s) {
+  let h = 5381;
+  for (let i = 0; i < s.length; i += 7) h = ((h << 5) + h + s.charCodeAt(i)) | 0;
+  return (h >>> 0).toString(36) + s.length.toString(36);
+}
+function castSafe(view) {
+  const img = view.screen.img;
+  if (!img || !img.startsWith("data:")) return view;
+  const id = hashStr(img);
+  if (!castImgs.has(id)) {
+    const size = 48000;
+    const total = Math.ceil(img.length / size);
+    for (let i = 0; i < total; i++) Cast.send({ t: "img", id, i, total, data: img.slice(i * size, (i + 1) * size) });
+    castImgs.add(id);
+  }
+  return { ...view, screen: { ...view.screen, img: "cast:" + id } };
 }
 
 function sfx(name) {
@@ -120,6 +142,7 @@ function buildView() {
     if (!found) return buildViewFor({ type: "board" });
     const { cat, clue } = found;
     screen = { type: "clue", cat: cat.name, value: clue.value, badge: BADGES[clue.kind] || "", q: clue.q };
+    if (clue.img && (clue.imgAt !== "a" || s.stage >= 1)) screen.img = clue.img;
     if (s.stage >= 1 && clue.kind !== "chaos") screen.a = answerFor(game, clue);
     if (s.stage >= 2 && clue.reward) screen.twist = clue.reward;
   }
@@ -212,6 +235,7 @@ function renderLive() {
       kind !== "q" ? " · " + kind : ""
     }</span></h3>
       <div class="hq">${fmt(clue.q)}</div>
+      ${clue.img ? `<img class="hpic" src="${esc(clue.img)}" alt="" />${clue.imgAt === "a" ? `<div class="hint">Picture shows on the TV with the answer.</div>` : ""}` : ""}
       <div class="hanswer secret"><div class="lbl">${isChaos ? "What happens" : "Answer"}${
       s.stage >= 1 && !isChaos ? " · on TV" : ""
     }</div><div class="txt">${fmt(answerFor(game, clue))}</div></div>

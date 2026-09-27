@@ -11,6 +11,8 @@ let view = null;
 let lastMainKey = "";
 let lastScores = {};
 let coinStarts = {}; // coin id -> when this screen first saw it
+const imgParts = {}; // pictures arriving over Chromecast in pieces
+const imgs = {};
 let anim = null;
 
 const main = document.getElementById("main");
@@ -23,6 +25,15 @@ function handle(msg) {
     render();
   } else if (msg.t === "sfx") {
     Sfx.play(msg.name);
+  } else if (msg.t === "img") {
+    const p = (imgParts[msg.id] = imgParts[msg.id] || []);
+    p[msg.i] = msg.data;
+    if (p.filter((x) => x != null).length === msg.total) {
+      imgs[msg.id] = p.join("");
+      delete imgParts[msg.id];
+      lastMainKey = "";
+      render();
+    }
   }
 }
 
@@ -100,8 +111,9 @@ function splash() {
 
 function board(s) {
   const n = s.cats.length || 1;
-  const rows = Math.max(5, ...s.cats.map((c) => c.cells.length));
-  let html = `<div class="board" data-rows="${rows}" style="grid-template-columns:repeat(${n},1fr)">`;
+  const rows = Math.max(1, ...s.cats.map((c) => c.cells.length));
+  const valSize = Math.min(7, 44 / rows).toFixed(2);
+  let html = `<div class="board" style="grid-template-columns:repeat(${n},1fr);grid-template-rows:1.1fr repeat(${rows},1fr);--val:${valSize}vh">`;
   s.cats.forEach((c) => (html += `<div class="cell cat">${esc(c.name)}</div>`));
   for (let r = 0; r < rows; r++) {
     s.cats.forEach((c) => {
@@ -116,9 +128,15 @@ function board(s) {
 function clue(s) {
   const huge = s.badge === "CHAOS" && s.q.length < 22;
   const long = s.q.length > 120;
-  let html = `<div class="clue">
+  let pic = "";
+  if (s.img) {
+    const src = s.img.startsWith("cast:") ? imgs[s.img.slice(5)] : s.img;
+    pic = src ? `<img class="qimg" src="${esc(src)}" alt="" />` : `<div class="img-wait">Loading picture...</div>`;
+  }
+  let html = `<div class="clue ${s.img ? "has-img" : ""}">
     <div class="tag">${esc(s.cat)} &middot; <b>${s.value}</b></div>
     ${s.badge ? `<div class="kind-badge">${esc(s.badge)}</div>` : ""}
+    ${pic}
     <div class="q ${huge ? "huge" : ""} ${long ? "long" : ""}">${fmt(s.q)}</div>`;
   if (s.a != null) html += `<div class="answer">${fmt(s.a)}</div>`;
   if (s.twist) html += `<div class="twist">${fmt(s.twist)}</div>`;

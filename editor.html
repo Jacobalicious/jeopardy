@@ -28,6 +28,7 @@
       </div>
       <a class="btn small primary" href="index.html">▶ Play</a>
       <input type="file" id="importFile" accept=".json,application/json" hidden />
+      <input type="file" id="picFile" accept="image/*" hidden />
     </header>
 
     <div class="ed-body">
@@ -46,6 +47,7 @@
           screen with these exact questions loaded.
         </p>
         <div id="qr" class="qr"></div>
+        <p class="hint" id="shareNote"></p>
         <div class="row">
           <input type="text" id="shareLink" readonly style="flex: 1" />
           <button class="btn" id="copyLink">Copy</button>
