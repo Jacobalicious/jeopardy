@@ -146,6 +146,7 @@ function render() {
 function splash() {
   return `<div class="splash">
     <h1>Jeopardy</h1>
+    <div class="subtitle">but I have brain damage</div>
     <ol>
       <li><b>Say "DING"</b> out loud to answer.</li>
       <li>Only say DING <b>after the host finishes reading the question.</b></li>

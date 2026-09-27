@@ -1426,3 +1426,20 @@ body.cast .room-corner {
   font-size: 17px;
   line-height: 1.1;
 }
+
+/* "but I have brain damage" under the title */
+
+.splash h1:has(+ .subtitle) {
+  margin-bottom: 0;
+}
+
+.splash .subtitle {
+  font-family: var(--f-head);
+  font-weight: 700;
+  font-size: 4.2vh;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ink);
+  transform: rotate(-2deg);
+  margin: 0 0 4vh;
+}
