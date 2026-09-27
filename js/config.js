@@ -3,7 +3,7 @@
 // Chromecast app ID from the Google Cast developer console.
 // Leave empty until the receiver is registered. It can also be pasted
 // into the host screen, which saves it on that device.
-window.CAST_APP_ID = "";
+window.CAST_APP_ID = "26A63765";
 
 // Message channel name shared by the phone (sender) and the TV (receiver).
 window.CAST_NS = "urn:x-cast:com.jacobalicious.jeopardy";
