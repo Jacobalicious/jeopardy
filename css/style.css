@@ -885,6 +885,127 @@ a.btn {
   background: transparent;
 }
 
+.gctl {
+  margin-top: 12px;
+  display: grid;
+  gap: 8px;
+}
+
+.gboard {
+  display: grid;
+  gap: 4px;
+  background: #06104f;
+  padding: 6px;
+  border-radius: 10px;
+  width: 100%;
+}
+
+.gcell {
+  aspect-ratio: 1;
+  border: 0;
+  border-radius: 6px;
+  background: #1a2266;
+  color: var(--gold);
+  font-family: Anton, Impact, sans-serif;
+  font-size: 26px;
+  padding: 0;
+}
+
+.gcell.connect4 {
+  border-radius: 50%;
+  background: #0a0f38;
+}
+
+.gcell.connect4.pX {
+  background: var(--red);
+}
+
+.gcell.connect4.pO {
+  background: var(--gold);
+}
+
+.gcell.tictactoe.pO {
+  color: #fff;
+}
+
+.swap-row {
+  margin-top: 10px;
+}
+
+.swap-row select {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Game board on the TV */
+
+.tv-board {
+  display: grid;
+  gap: 1vh;
+  background: #06104f;
+  padding: 1.2vh;
+  border-radius: 1.5vh;
+  border: 0.5vh solid #000;
+  margin-top: 2vh;
+}
+
+.tv-cell {
+  width: var(--cell);
+  height: var(--cell);
+  border-radius: 1vh;
+  background: #1a2266;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: Anton, Impact, sans-serif;
+  font-size: calc(var(--cell) * 0.7);
+  color: var(--gold);
+}
+
+.tv-cell.pO {
+  color: #fff;
+}
+
+.tv-board.connect4 .tv-cell {
+  border-radius: 50%;
+  background: #030627;
+}
+
+.tv-board.connect4 .tv-cell.pX {
+  background: var(--red);
+  animation: dropIn 0.35s ease-in;
+}
+
+.tv-board.connect4 .tv-cell.pO {
+  background: var(--gold);
+  animation: dropIn 0.35s ease-in;
+}
+
+@keyframes dropIn {
+  from {
+    transform: translateY(-30vh);
+  }
+  to {
+    transform: none;
+  }
+}
+
+.board-status {
+  margin-top: 2vh;
+  font-family: Oswald, sans-serif;
+  font-weight: 700;
+  font-size: 3.4vh;
+  text-transform: uppercase;
+}
+
+.board-status.done {
+  font-family: Anton, Impact, sans-serif;
+  font-weight: 400;
+  font-size: 6vh;
+  color: var(--gold);
+  animation: slam 0.4s cubic-bezier(0.2, 1.8, 0.4, 1);
+}
+
 .quick-scores {
   margin-top: 14px;
   border-top: 1px solid var(--line);
@@ -1031,3 +1152,19 @@ a.btn {
 }
 
 
+
+/* Pictures and game boards make the clue taller: keep it clear of the category line. */
+.clue.has-img {
+  padding-top: 3vh;
+  justify-content: flex-start;
+}
+
+.clue.has-img .tag {
+  position: static;
+  margin-bottom: 2vh;
+}
+
+.clue.has-img .kind-badge {
+  margin-bottom: 1.5vh;
+  font-size: 2.6vh;
+}

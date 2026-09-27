@@ -220,6 +220,7 @@ function card(c, q, i, opts = {}) {
   const note = q.note ? `<span class="tag-chip">host note</span>` : "";
   const src = q.src ? `<span class="tag-chip">${esc(q.src)}</span>` : "";
   const pic = q.img ? `<span class="tag-chip pic">🖼 picture</span>` : "";
+  const gameChip = q.game ? `<span class="tag-chip kind">${q.game.type === "connect4" ? `Connect Four ${newBoard(q.game).cols}×${newBoard(q.game).rows}` : "Tic-tac-toe"} board</span>` : "";
   const catChip = opts.showCat ? `<span class="tag-chip cat">${esc(c.name)}</span>` : "";
   return `<div class="qcard ${q.use ? "" : "off"}" data-cat="${c.id}" data-q="${q.id}">
     <div class="pick">
@@ -229,7 +230,7 @@ function card(c, q, i, opts = {}) {
     <div class="qbody" data-act="edit">
       <div class="qt">${esc(q.q) || "<i>(empty question)</i>"}</div>
       <div class="at">${esc(q.a)}</div>
-      <div class="tags">${catChip}${pic}${kind}${twist}${note}${src}</div>
+      <div class="tags">${catChip}${pic}${gameChip}${kind}${twist}${note}${src}</div>
     </div>
     <div class="qacts">
       ${opts.showCat ? "" : `<button data-act="up" ${i === 0 ? "disabled" : ""} title="Move up">▲</button>
@@ -250,6 +251,7 @@ function editCard(c, q) {
       <label>Host note <small>(never shown on the TV: how to rule, what to say)</small><textarea data-f="note" rows="2">${esc(q.note)}</textarea></label>
       <label>Twist <small>(optional, revealed after the answer, e.g. "Reward: gain -100 points")</small><textarea data-f="reward" rows="1">${esc(q.reward)}</textarea></label>
       ${picField(q)}
+      ${gameField(q)}
       <div class="two">
         <label>Type<select data-f="kind">${kindOpts}</select><small style="color:var(--muted)">${esc(kindHelp)}</small></label>
         <label>Category<select data-f="cat">${catOpts}</select></label>
@@ -262,6 +264,28 @@ function editCard(c, q) {
         <button class="btn bad" data-act="delete">Delete</button>
       </div>
     </div>
+  </div>`;
+}
+
+function gameField(q) {
+  const g = q.game || {};
+  const b = q.game ? newBoard(q.game) : null;
+  return `<div class="pic-field">
+    <div class="pic-lbl">Game board <small>(optional: you tap moves on your phone, the board shows on the TV)</small></div>
+    <select data-f="gameType">
+      <option value="" ${!g.type ? "selected" : ""}>None</option>
+      <option value="tictactoe" ${g.type === "tictactoe" ? "selected" : ""}>Tic-tac-toe</option>
+      <option value="connect4" ${g.type === "connect4" ? "selected" : ""}>Connect Four</option>
+    </select>
+    ${
+      g.type === "connect4"
+        ? `<div class="row">
+            <label class="inline">Columns <input type="number" min="3" max="10" data-f="gameCols" value="${b.cols}" style="width:70px" /></label>
+            <label class="inline">Rows <input type="number" min="3" max="10" data-f="gameRows" value="${b.rows}" style="width:70px" /></label>
+          </div>
+          <small class="pic-hint">Normal Connect Four is 7 columns, 6 rows. Anything smaller than 4 makes it impossible to win.</small>`
+        : ""
+    }
   </div>`;
 }
 
@@ -491,6 +515,17 @@ $("main").addEventListener("input", (e) => {
     toast(`Moved to ${dest.name}`);
     editing = null;
     return render();
+  }
+  if (field === "gameType") {
+    if (t.value) q.game = t.value === "connect4" ? { type: "connect4", cols: 7, rows: 6 } : { type: "tictactoe" };
+    else delete q.game;
+    save();
+    return render();
+  }
+  if (field === "gameCols" || field === "gameRows") {
+    q.game[field === "gameCols" ? "cols" : "rows"] = Math.min(10, Math.max(3, Number(t.value) || 3));
+    save();
+    return;
   }
   if (field === "imgUrl") {
     const v = t.value.trim();

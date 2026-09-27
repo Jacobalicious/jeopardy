@@ -133,14 +133,26 @@ function clue(s) {
     const src = s.img.startsWith("cast:") ? imgs[s.img.slice(5)] : s.img;
     pic = src ? `<img class="qimg" src="${esc(src)}" alt="" />` : `<div class="img-wait">Loading picture...</div>`;
   }
-  let html = `<div class="clue ${s.img ? "has-img" : ""}">
+  let html = `<div class="clue ${s.img || s.board ? "has-img" : ""}">
     <div class="tag">${esc(s.cat)} &middot; <b>${s.value}</b></div>
     ${s.badge ? `<div class="kind-badge">${esc(s.badge)}</div>` : ""}
     ${pic}
     <div class="q ${huge ? "huge" : ""} ${long ? "long" : ""}">${fmt(s.q)}</div>`;
+  if (s.board) html += tvBoard(s.board);
   if (s.a != null) html += `<div class="answer">${fmt(s.a)}</div>`;
   if (s.twist) html += `<div class="twist">${fmt(s.twist)}</div>`;
   return html + `</div>`;
+}
+
+function tvBoard(b) {
+  const cell = Math.min(38 / b.rows, 70 / b.cols).toFixed(2) + "vh";
+  const names = PIECE_NAMES[b.type];
+  let cells = "";
+  b.cells.forEach((v) => (cells += `<div class="tv-cell ${v ? "p" + v : ""}">${b.type === "tictactoe" ? v : ""}</div>`));
+  const status = b.result
+    ? `<div class="board-status done">${b.result === "draw" ? "IT'S A DRAW" : esc(names[b.result]).toUpperCase() + " WINS!"}</div>`
+    : `<div class="board-status">${esc(names[b.turn])}'s turn</div>`;
+  return `<div class="tv-board ${b.type}" style="--cell:${cell};grid-template-columns:repeat(${b.cols},var(--cell))">${cells}</div>${status}`;
 }
 
 function coin(s) {

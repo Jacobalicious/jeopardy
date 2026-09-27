@@ -3,7 +3,7 @@
 // send Claude a "Send to phone" link or a backup file.
 window.DEFAULT_LIBRARY = {
   "title": "Brain Damage Jeopardy",
-  "rows": 9,
+  "rows": 6,
   "categories": [
     {
       "id": "geography",
@@ -27,6 +27,29 @@ window.DEFAULT_LIBRARY = {
           "use": true
         },
         {
+          "id": "geography-5",
+          "q": "This country is known for being a stew with meat, peppers and tomatoes.",
+          "a": "Chile.",
+          "note": "Chili. Accept it spelled either way, they can't see your spelling.",
+          "src": "Noah",
+          "use": true
+        },
+        {
+          "id": "geography-7",
+          "q": "This pile of trash is roughly 1/3 the size of texas and is located in the Atlantic ocean",
+          "a": "The United Kingdom",
+          "src": "Jacob",
+          "use": true
+        },
+        {
+          "id": "geography-6",
+          "q": "Despite what many people believe, this is the real tallest mountain in the world.",
+          "a": "Mount Everest.",
+          "note": "People expect a trick. There is no trick.",
+          "src": "Noah",
+          "use": true
+        },
+        {
           "id": "geography-3",
           "q": "If you travel 24,901 miles west of Brazil, you will end up in this country.",
           "a": "Brazil.",
@@ -40,30 +63,7 @@ window.DEFAULT_LIBRARY = {
           "a": "North Korea.",
           "note": "This is the only real question on the board. Watch them overthink it.",
           "src": "Noah",
-          "use": true
-        },
-        {
-          "id": "geography-5",
-          "q": "This country is known for being a stew with meat, peppers and tomatoes.",
-          "a": "Chile.",
-          "note": "Chili. Accept it spelled either way, they can't see your spelling.",
-          "src": "Noah",
-          "use": true
-        },
-        {
-          "id": "geography-6",
-          "q": "Despite what many people believe, this is the real tallest mountain in the world.",
-          "a": "Mount Everest.",
-          "note": "People expect a trick. There is no trick.",
-          "src": "Noah",
-          "use": true
-        },
-        {
-          "id": "geography-7",
-          "q": "This pile of trash is roughly 1/3 the size of texas and is located in the Atlantic ocean",
-          "a": "The United Kingdom",
-          "src": "Jacob",
-          "use": true
+          "use": false
         },
         {
           "id": "geography-8",
@@ -71,7 +71,7 @@ window.DEFAULT_LIBRARY = {
           "a": "The Grand Canyon.",
           "reward": "Reward: pick a team to lose 200 points.",
           "src": "Noah",
-          "use": true
+          "use": false
         },
         {
           "id": "geography-9",
@@ -79,20 +79,440 @@ window.DEFAULT_LIBRARY = {
           "a": "Russia.",
           "note": "Noah's version was ruder. Adjust to taste.",
           "src": "Noah",
+          "use": false
+        }
+      ]
+    },
+    {
+      "id": "riddles-mind-games",
+      "name": "History",
+      "onBoard": true,
+      "questions": [
+        {
+          "id": "riddles-mind-games-1",
+          "q": "What was the answer to the very first question of tonight's game?",
+          "a": "(Shown automatically below.)",
+          "note": "Nobody will remember. You barely remember.",
+          "kind": "callback",
+          "src": "Noah (changed)",
           "use": true
+        },
+        {
+          "id": "riddles-mind-games-q200ij7",
+          "q": "In what year did the year 2000 happen?",
+          "a": "2000",
+          "use": true
+        },
+        {
+          "id": "riddles-mind-games-5",
+          "q": "How many animals of each kind did Moses take on the ark?",
+          "a": "Zero. It was Noah.",
+          "note": "Two is wrong. Fitting, given who we stole this game from.",
+          "src": "Classic",
+          "use": true
+        },
+        {
+          "id": "riddles-mind-games-4",
+          "q": "Rate the host's intelligence from 1 to 10.",
+          "a": "Higher.",
+          "note": "Whatever they say, it's higher. If they say 10, it's 11.",
+          "src": "Ours",
+          "use": true
+        },
+        {
+          "id": "riddles-mind-games-8rvdydl",
+          "q": "How much was one dollar worth in 1976?",
+          "a": "$1",
+          "use": true
+        },
+        {
+          "id": "riddles-mind-games-6",
+          "q": "A plane crashes exactly on the border of the US and Canada. Where do they bury the survivors?",
+          "a": "You don't bury survivors.",
+          "src": "Classic",
+          "use": true
+        },
+        {
+          "id": "riddles-mind-games-2",
+          "q": "What is the least common answer to \"pick a random number from 1 to 10\"?",
+          "a": "u cant bc its the least common",
+          "note": "Who would ever pick that number? Exactly.",
+          "src": "Noah",
+          "use": false
+        },
+        {
+          "id": "riddles-mind-games-3",
+          "q": "True or false: this statement is false.",
+          "a": "Yes.",
+          "src": "Classic",
+          "use": false
+        },
+        {
+          "id": "riddles-mind-games-7",
+          "q": "Before Mount Everest was discovered, what was the tallest mountain in the world?",
+          "a": "Mount Everest.",
+          "note": "It was still there. Nobody had measured it yet.",
+          "src": "Classic",
+          "use": false
+        },
+        {
+          "id": "riddles-mind-games-9",
+          "q": "A farmer has 17 sheep. All but 9 die. How many are left?",
+          "a": "9.",
+          "src": "Classic",
+          "use": false
+        }
+      ]
+    },
+    {
+      "id": "science-real",
+      "name": "Science",
+      "onBoard": true,
+      "questions": [
+        {
+          "id": "science-real-8",
+          "q": "What animal can hold its breath underwater the longest?",
+          "a": "A fish.",
+          "note": "It never has to come up. Whale is wrong.",
+          "src": "Noah",
+          "use": true
+        },
+        {
+          "id": "science-real-2",
+          "q": "How many sides does a circle have?",
+          "a": "2. Inside and outside.",
+          "note": "Zero, one, and infinity are all wrong.",
+          "src": "Classic",
+          "use": true
+        },
+        {
+          "id": "science-real-6",
+          "q": "Powerhouse.",
+          "a": "The mitochondria.",
+          "note": "That's the whole question. Don't add anything.",
+          "src": "Noah",
+          "use": true
+        },
+        {
+          "id": "science-real-9",
+          "q": "What does the fox say?",
+          "a": "It screams. Look it up.",
+          "note": "Accept any impression committed to fully.",
+          "src": "Classic",
+          "use": true
+        },
+        {
+          "id": "science-real-7",
+          "q": "While some people are born without this, those born with it usually cut it for hygiene reasons.",
+          "a": "Hair",
+          "note": "It is not what they're thinking. Watch them say it anyway.",
+          "src": "Noah",
+          "use": true
+        },
+        {
+          "id": "science-real-1",
+          "q": "Which is heavier: a kilogram of steel or a kilogram of feathers?",
+          "a": "The steel.",
+          "note": "Because steel is heavier than feathers. Do NOT accept \"they're the same\". Hold this position under any amount of pressure.",
+          "src": "Classic",
+          "use": true
+        },
+        {
+          "id": "science-real-3",
+          "q": "Which came first: the chicken or the egg?",
+          "a": "The egg.",
+          "note": "Dinosaurs laid eggs long before chickens existed. This one's legit.",
+          "src": "Classic",
+          "use": false
+        },
+        {
+          "id": "science-real-4",
+          "q": "What is the most common element in the universe?",
+          "a": "Hydrogen.",
+          "note": "A completely real question. The panic is the point.",
+          "src": "Ours",
+          "use": false
+        },
+        {
+          "id": "science-real-5",
+          "q": "In a room of 23 people, what are the odds that two of them share a birthday?",
+          "a": "About 50%.",
+          "note": "Real. The birthday paradox. Accept 45-55%.",
+          "src": "Classic",
+          "use": false
+        }
+      ]
+    },
+    {
+      "id": "back-to-school",
+      "name": "English",
+      "onBoard": true,
+      "questions": [
+        {
+          "id": "back-to-school-1",
+          "q": "How many letters are in the alphabet?",
+          "a": "11.",
+          "note": "T-H-E A-L-P-H-A-B-E-T. 26 is wrong.",
+          "src": "Classic",
+          "use": true
+        },
+        {
+          "id": "back-to-school-3",
+          "q": "What word is spelled incorrectly in every single dictionary?",
+          "a": "\"Incorrectly.\"",
+          "src": "Classic",
+          "use": true
+        },
+        {
+          "id": "back-to-school-4",
+          "q": "What is TACO CAT backwards?",
+          "a": "Cat taco.",
+          "note": "\"Taco cat\" is wrong.",
+          "src": "Noah",
+          "use": true
+        },
+        {
+          "id": "back-to-school-2",
+          "q": "Spell Supercalifragilisticexpalidocious",
+          "a": "Supercalifragilisticexp\"I\"alidocious",
+          "src": "Classic",
+          "use": true,
+          "note": "Remember: they have to say the I."
+        },
+        {
+          "id": "back-to-school-8",
+          "q": "Name someone who signed the Declaration of Independence.",
+          "a": "Nicolas Cage.",
+          "note": "Thomas Jefferson is wrong. Cage stole it in National Treasure.",
+          "src": "Noah (changed)",
+          "use": true
+        },
+        {
+          "id": "back-to-school-6",
+          "q": "Who was the first president of the United States?",
+          "a": "George Washington.",
+          "note": "Real. Watch them second-guess it.",
+          "src": "Ours",
+          "use": true
+        },
+        {
+          "id": "back-to-school-7",
+          "q": "How long did the Hundred Years' War last?",
+          "a": "116 years.",
+          "note": "Real. 100 is wrong.",
+          "src": "Classic",
+          "use": false
+        },
+        {
+          "id": "back-to-school-5",
+          "q": "What five-letter word becomes shorter when you add two letters to it?",
+          "a": "\"Short.\" (Shorter.)",
+          "src": "Classic",
+          "use": false
+        }
+      ]
+    },
+    {
+      "id": "nerd-stuff",
+      "name": "Gaming",
+      "onBoard": true,
+      "questions": [
+        {
+          "id": "nerd-stuff-1",
+          "q": "This plumber is known for going on adventures to save the princess and jumping through the Mushroom Kingdom.",
+          "a": "Luigi.",
+          "note": "Mario is wrong. Duh.",
+          "src": "Noah",
+          "use": true
+        },
+        {
+          "id": "nerd-stuff-4",
+          "q": "x = 23\nx = x + 7\nWhat is the value of x?",
+          "a": "30. I forgot to tell you that we were coding",
+          "note": "This one's real. People will argue that it makes no sense. It does, in code.",
+          "src": "Noah",
+          "use": true
+        },
+        {
+          "id": "nerd-stuff-8",
+          "q": "Beyblade, Beyblade, let it...",
+          "a": "RIP!",
+          "src": "Noah",
+          "use": true
+        },
+        {
+          "id": "nerd-stuff-3",
+          "q": "How do I get an extra life?",
+          "a": "Up Up Down Down Left Right Left Right",
+          "note": "Must say BOTH ups. If they say one up, it's wrong. Check the recording.",
+          "src": "Noah",
+          "use": true
+        },
+        {
+          "id": "nerd-stuff-gjrpcal",
+          "q": "Who is this?",
+          "a": "lil ghost",
+          "use": true,
+          "img": "img/nerd-stuff-gjrpcal.jpg"
+        },
+        {
+          "id": "nerd-stuff-5",
+          "q": "Are computers good at swimming?",
+          "a": "No.",
+          "src": "Noah",
+          "use": true
+        },
+        {
+          "id": "nerd-stuff-2",
+          "q": "In this game, the player is a yellow circle with a mouth that eats white pellets and is chased by ghosts.",
+          "a": "Ms. Pac-Man.",
+          "note": "Pac-Man is wrong.",
+          "src": "Noah",
+          "use": false
+        },
+        {
+          "id": "nerd-stuff-7",
+          "q": "How do I fix my computer?",
+          "a": "Turn it off and on again.",
+          "src": "Noah",
+          "use": false
+        },
+        {
+          "id": "nerd-stuff-6",
+          "q": "What will this line of code do?\n// this function doesn't work, it needs to be fixed",
+          "a": "Nothing. It's a comment.",
+          "src": "Noah",
+          "use": false
+        },
+        {
+          "id": "nerd-stuff-9",
+          "q": "Unscramble these letters:\nLOGARITHM",
+          "a": "ALGORITHM.",
+          "note": "\"Logarithm\" is not unscrambled. It's a perfect anagram, which is hilarious.",
+          "src": "Noah",
+          "use": false
+        }
+      ]
+    },
+    {
+      "id": "minigames",
+      "name": "Psychology",
+      "onBoard": true,
+      "questions": [
+        {
+          "id": "minigames-1",
+          "q": "Play the team to your right Tic Tac Toe",
+          "a": "Winner gets the points.",
+          "kind": "minigame",
+          "src": "Noah",
+          "use": true,
+          "game": {
+            "type": "tictactoe"
+          },
+          "note": "Tap the squares on your phone to play the moves."
+        },
+        {
+          "id": "minigames-2",
+          "q": "First player to touch something blue wins.",
+          "a": "Host judges what counts as blue.",
+          "note": "The TV screen is blue. That counts. Don't tell them.",
+          "kind": "minigame",
+          "src": "Ours",
+          "use": true
+        },
+        {
+          "id": "minigames-4",
+          "q": "Beat the host in rock paper scissors.\n(The host goes second.)",
+          "a": "The host wins.",
+          "kind": "minigame",
+          "src": "Ours",
+          "use": true
+        },
+        {
+          "id": "minigames-8",
+          "q": "Play the Rock Paper Scissors with someone on your team",
+          "a": "You Lost",
+          "kind": "minigame",
+          "src": "Noah",
+          "use": true,
+          "note": "Point out to the person that lost"
+        },
+        {
+          "id": "minigames-7",
+          "q": "Play the team to the left Connect Four",
+          "a": "Nobody. You cannot get four in a row on a 3 by 3 board.",
+          "kind": "minigame",
+          "src": "Noah",
+          "use": true,
+          "game": {
+            "type": "connect4",
+            "cols": 3,
+            "rows": 3
+          },
+          "note": "Tap a column on your phone to drop a piece. Let them figure out it is impossible."
+        },
+        {
+          "id": "minigames-6",
+          "q": "White to move.",
+          "a": "H1 to H2",
+          "src": "Noah",
+          "use": true,
+          "img": "img/minigames-6.jpg",
+          "reward": ""
+        },
+        {
+          "id": "minigames-3",
+          "q": "Play the host in chess. You have 10 seconds.",
+          "a": "Nobody wins in 10 seconds.",
+          "note": "Reward nobody. Or give it to whoever complains the least.",
+          "kind": "minigame",
+          "src": "Noah (changed)",
+          "use": false
+        },
+        {
+          "id": "minigames-5",
+          "q": "Staring contest with the host.",
+          "a": "Host decides who blinked.",
+          "kind": "minigame",
+          "src": "Ours",
+          "use": false
+        },
+        {
+          "id": "minigames-9",
+          "kind": "minigame",
+          "q": "Hum a song. First team to name it wins.",
+          "a": "Host picks the song and hums it.",
+          "note": "Hum badly on purpose.",
+          "src": "Ours",
+          "use": false
         }
       ]
     },
     {
       "id": "space-stuff",
-      "name": "Space Stuff",
-      "onBoard": true,
+      "name": "Astronomy",
+      "onBoard": false,
       "questions": [
+        {
+          "id": "space-stuff-3",
+          "q": "What was the first planet astronomers discovered?",
+          "a": "Earth.",
+          "src": "Noah",
+          "use": true
+        },
+        {
+          "id": "space-stuff-5",
+          "q": "This object in our solar system is roughly one million times bigger than Earth.",
+          "a": "The Sun.",
+          "note": "Real. By volume it's about 1.3 million. Close enough.",
+          "src": "Noah",
+          "use": true
+        },
         {
           "id": "space-stuff-1",
           "q": "What is the Moon made of?",
-          "a": "Moon.",
-          "note": "The Earth is made of Earth. Simple logic. Cheese is wrong, rock is wrong.",
+          "a": "Moon Rock",
+          "note": "The Earth is made of Earth. Simple logic. Cheese is wrong.",
           "src": "Noah",
           "use": true
         },
@@ -105,8 +525,8 @@ window.DEFAULT_LIBRARY = {
           "use": true
         },
         {
-          "id": "space-stuff-3",
-          "q": "What was the first planet astronomers discovered?",
+          "id": "space-stuff-8",
+          "q": "What is the biggest rock on Earth?",
           "a": "Earth.",
           "src": "Noah",
           "use": true
@@ -120,20 +540,12 @@ window.DEFAULT_LIBRARY = {
           "use": true
         },
         {
-          "id": "space-stuff-5",
-          "q": "This object in our solar system is roughly one million times bigger than Earth.",
-          "a": "The Sun.",
-          "note": "Real. By volume it's about 1.3 million. Close enough.",
-          "src": "Noah",
-          "use": true
-        },
-        {
           "id": "space-stuff-6",
           "q": "How many astronomical units is the Earth from the Sun?",
           "a": "1.",
           "note": "Genuinely real. They'll be suspicious.",
           "src": "Noah",
-          "use": true
+          "use": false
         },
         {
           "id": "space-stuff-7",
@@ -141,14 +553,7 @@ window.DEFAULT_LIBRARY = {
           "a": "None. It's a distance.",
           "note": "\"One year\" is wrong.",
           "src": "Noah",
-          "use": true
-        },
-        {
-          "id": "space-stuff-8",
-          "q": "What is the biggest rock on Earth?",
-          "a": "Earth.",
-          "src": "Noah",
-          "use": true
+          "use": false
         },
         {
           "id": "space-stuff-9",
@@ -156,14 +561,14 @@ window.DEFAULT_LIBRARY = {
           "a": "The Saha equation.",
           "note": "Needs a picture: the Saha equation. Add it with Edit, then Picture.",
           "src": "Noah",
-          "use": true
+          "use": false
         }
       ]
     },
     {
       "id": "quantum-physics",
       "name": "Quantum Physics",
-      "onBoard": true,
+      "onBoard": false,
       "questions": [
         {
           "id": "quantum-physics-1",
@@ -194,7 +599,7 @@ window.DEFAULT_LIBRARY = {
           "q": "How long does it take light to travel one light year?",
           "a": "One year.",
           "note": "It's in the name.",
-          "reward": "Reward: a Point Shield. Blocks your next loss of points.",
+          "reward": "",
           "src": "Noah",
           "use": true
         },
@@ -236,14 +641,14 @@ window.DEFAULT_LIBRARY = {
           "a": "4.",
           "note": "Neck, two arms, bottom. Changed from Noah's \"how many holes in the word Polo\".",
           "src": "Noah (changed)",
-          "use": true
+          "use": false
         }
       ]
     },
     {
       "id": "mythical-creatures",
       "name": "Mythical Creatures",
-      "onBoard": true,
+      "onBoard": false,
       "questions": [
         {
           "id": "mythical-creatures-1",
@@ -319,87 +724,9 @@ window.DEFAULT_LIBRARY = {
       ]
     },
     {
-      "id": "riddles-mind-games",
-      "name": "Riddles & Mind Games",
-      "onBoard": true,
-      "questions": [
-        {
-          "id": "riddles-mind-games-1",
-          "q": "What was the answer to the very first question of tonight's game?",
-          "a": "(Shown automatically below.)",
-          "note": "Nobody will remember. You barely remember.",
-          "kind": "callback",
-          "src": "Noah (changed)",
-          "use": true
-        },
-        {
-          "id": "riddles-mind-games-2",
-          "q": "What is the least common answer to \"pick a random number from 1 to 10\"?",
-          "a": "u cant bc its the least common",
-          "note": "Who would ever pick that number? Exactly.",
-          "src": "Noah",
-          "use": true
-        },
-        {
-          "id": "riddles-mind-games-3",
-          "q": "True or false: this statement is false.",
-          "a": "Yes.",
-          "src": "Classic",
-          "use": true
-        },
-        {
-          "id": "riddles-mind-games-4",
-          "q": "Rate the host's intelligence from 1 to 10.",
-          "a": "Higher.",
-          "note": "Whatever they say, it's higher. If they say 10, it's 11.",
-          "src": "Ours",
-          "use": true
-        },
-        {
-          "id": "riddles-mind-games-5",
-          "q": "How many animals of each kind did Moses take on the ark?",
-          "a": "Zero. It was Noah.",
-          "note": "Two is wrong. Fitting, given who we stole this game from.",
-          "src": "Classic",
-          "use": true
-        },
-        {
-          "id": "riddles-mind-games-6",
-          "q": "A plane crashes exactly on the border of the US and Canada. Where do they bury the survivors?",
-          "a": "You don't bury survivors.",
-          "src": "Classic",
-          "use": true
-        },
-        {
-          "id": "riddles-mind-games-7",
-          "q": "Before Mount Everest was discovered, what was the tallest mountain in the world?",
-          "a": "Mount Everest.",
-          "note": "It was still there. Nobody had measured it yet.",
-          "src": "Classic",
-          "use": true
-        },
-        {
-          "id": "riddles-mind-games-8",
-          "q": "What has a head and a tail, but no body?",
-          "a": "A coin. Now flip it: heads or tails?",
-          "kind": "coin",
-          "note": "After they answer, if they call the coin correct then they get the points if not then minus that points",
-          "src": "Classic",
-          "use": true
-        },
-        {
-          "id": "riddles-mind-games-9",
-          "q": "A farmer has 17 sheep. All but 9 die. How many are left?",
-          "a": "9.",
-          "src": "Classic",
-          "use": true
-        }
-      ]
-    },
-    {
       "id": "gambling",
       "name": "Gambling",
-      "onBoard": true,
+      "onBoard": false,
       "questions": [
         {
           "id": "gambling-1",
@@ -461,330 +788,11 @@ window.DEFAULT_LIBRARY = {
           "use": true
         },
         {
-          "id": "gambling-8",
-          "q": "How much was one dollar worth in 1976?",
-          "a": "One dollar.",
-          "src": "Noah",
-          "use": true
-        },
-        {
           "id": "gambling-9",
           "kind": "chaos",
           "q": "SWAP\nTrade scores with any team you want.",
           "a": "They pick a team and swap scores.",
           "note": "Watch the leading team get picked every time.",
-          "src": "Ours",
-          "use": true
-        }
-      ]
-    },
-    {
-      "id": "science-real",
-      "name": "Science (Real)",
-      "onBoard": false,
-      "questions": [
-        {
-          "id": "science-real-1",
-          "q": "Which is heavier: a kilogram of steel or a kilogram of feathers?",
-          "a": "The steel.",
-          "note": "Because steel is heavier than feathers. Do NOT accept \"they're the same\". Hold this position under any amount of pressure.",
-          "src": "Classic",
-          "use": true
-        },
-        {
-          "id": "science-real-2",
-          "q": "How many sides does a circle have?",
-          "a": "2. Inside and outside.",
-          "note": "Zero, one, and infinity are all wrong.",
-          "src": "Classic",
-          "use": true
-        },
-        {
-          "id": "science-real-3",
-          "q": "Which came first: the chicken or the egg?",
-          "a": "The egg.",
-          "note": "Dinosaurs laid eggs long before chickens existed. This one's legit.",
-          "src": "Classic",
-          "use": true
-        },
-        {
-          "id": "science-real-4",
-          "q": "What is the most common element in the universe?",
-          "a": "Hydrogen.",
-          "note": "A completely real question. The panic is the point.",
-          "src": "Ours",
-          "use": true
-        },
-        {
-          "id": "science-real-5",
-          "q": "In a room of 23 people, what are the odds that two of them share a birthday?",
-          "a": "About 50%.",
-          "note": "Real. The birthday paradox. Accept 45-55%.",
-          "src": "Classic",
-          "use": true
-        },
-        {
-          "id": "science-real-6",
-          "q": "Powerhouse.",
-          "a": "The mitochondria.",
-          "note": "That's the whole question. Don't add anything.",
-          "src": "Noah",
-          "use": true
-        },
-        {
-          "id": "science-real-7",
-          "q": "While some people are born without this, those born with it usually cut it for hygiene reasons.",
-          "a": "Fingernails.",
-          "note": "It is not what they're thinking. Watch them say it anyway.",
-          "src": "Noah",
-          "use": true
-        },
-        {
-          "id": "science-real-8",
-          "q": "What animal can hold its breath underwater the longest?",
-          "a": "A fish.",
-          "note": "It never has to come up. Whale is wrong.",
-          "src": "Noah",
-          "use": true
-        },
-        {
-          "id": "science-real-9",
-          "q": "What does the fox say?",
-          "a": "It screams. Look it up.",
-          "note": "Accept any impression committed to fully.",
-          "src": "Classic",
-          "use": true
-        }
-      ]
-    },
-    {
-      "id": "nerd-stuff",
-      "name": "Nerd Stuff",
-      "onBoard": false,
-      "questions": [
-        {
-          "id": "nerd-stuff-1",
-          "q": "This plumber is known for going on adventures to save the princess and jumping through the Mushroom Kingdom.",
-          "a": "Luigi.",
-          "note": "Mario is wrong. Duh.",
-          "src": "Noah",
-          "use": true
-        },
-        {
-          "id": "nerd-stuff-2",
-          "q": "In this game, the player is a yellow circle with a mouth that eats white pellets and is chased by ghosts.",
-          "a": "Ms. Pac-Man.",
-          "note": "Pac-Man is wrong.",
-          "src": "Noah",
-          "use": true
-        },
-        {
-          "id": "nerd-stuff-3",
-          "q": "How do I get an extra life?",
-          "a": "Up Up Down Down Left Right Left Right",
-          "note": "Must say BOTH ups. If they say one up, it's wrong. Check the recording.",
-          "src": "Noah",
-          "use": true
-        },
-        {
-          "id": "nerd-stuff-4",
-          "q": "x = 23\nx = x + 7\nWhat is the value of x?",
-          "a": "30.",
-          "note": "This one's real. People will argue that it makes no sense. It does, in code.",
-          "src": "Noah",
-          "use": true
-        },
-        {
-          "id": "nerd-stuff-5",
-          "q": "Are computers good at swimming?",
-          "a": "No.",
-          "src": "Noah",
-          "use": true
-        },
-        {
-          "id": "nerd-stuff-6",
-          "q": "What will this line of code do?\n// this function doesn't work, it needs to be fixed",
-          "a": "Nothing. It's a comment.",
-          "src": "Noah",
-          "use": true
-        },
-        {
-          "id": "nerd-stuff-7",
-          "q": "How do I fix my computer?",
-          "a": "Turn it off and on again.",
-          "src": "Noah",
-          "use": true
-        },
-        {
-          "id": "nerd-stuff-8",
-          "q": "Beyblade, Beyblade, let it...",
-          "a": "RIP!",
-          "src": "Noah",
-          "use": true
-        },
-        {
-          "id": "nerd-stuff-9",
-          "q": "Unscramble these letters:\nLOGARITHM",
-          "a": "ALGORITHM.",
-          "note": "\"Logarithm\" is not unscrambled. It's a perfect anagram, which is hilarious.",
-          "src": "Noah",
-          "use": true
-        }
-      ]
-    },
-    {
-      "id": "back-to-school",
-      "name": "Back To School",
-      "onBoard": false,
-      "questions": [
-        {
-          "id": "back-to-school-1",
-          "q": "How many letters are in the alphabet?",
-          "a": "11.",
-          "note": "T-H-E A-L-P-H-A-B-E-T. 26 is wrong.",
-          "src": "Classic",
-          "use": true
-        },
-        {
-          "id": "back-to-school-2",
-          "q": "What is the only word in English that is always pronounced wrong?",
-          "a": "\"Wrong.\"",
-          "src": "Classic",
-          "use": true
-        },
-        {
-          "id": "back-to-school-3",
-          "q": "What word is spelled incorrectly in every single dictionary?",
-          "a": "\"Incorrectly.\"",
-          "src": "Classic",
-          "use": true
-        },
-        {
-          "id": "back-to-school-4",
-          "q": "What is TACO CAT backwards?",
-          "a": "Cat taco.",
-          "note": "\"Taco cat\" is wrong.",
-          "src": "Noah",
-          "use": true
-        },
-        {
-          "id": "back-to-school-5",
-          "q": "What five-letter word becomes shorter when you add two letters to it?",
-          "a": "\"Short.\" (Shorter.)",
-          "src": "Classic",
-          "use": true
-        },
-        {
-          "id": "back-to-school-6",
-          "q": "Who was the first president of the United States?",
-          "a": "George Washington.",
-          "note": "Real. Watch them second-guess it.",
-          "src": "Ours",
-          "use": true
-        },
-        {
-          "id": "back-to-school-7",
-          "q": "How long did the Hundred Years' War last?",
-          "a": "116 years.",
-          "note": "Real. 100 is wrong.",
-          "src": "Classic",
-          "use": true
-        },
-        {
-          "id": "back-to-school-8",
-          "q": "Name someone who signed the Declaration of Independence.",
-          "a": "Nicolas Cage.",
-          "note": "Thomas Jefferson is wrong. Cage stole it in National Treasure.",
-          "src": "Noah (changed)",
-          "use": true
-        },
-        {
-          "id": "back-to-school-9",
-          "q": "In what year did the year 2000 happen?",
-          "a": "2000.",
-          "src": "Ours",
-          "use": true
-        }
-      ]
-    },
-    {
-      "id": "minigames",
-      "name": "Minigames",
-      "onBoard": false,
-      "questions": [
-        {
-          "id": "minigames-1",
-          "q": "Play the host in tic-tac-toe.",
-          "a": "Play it on paper or a whiteboard.",
-          "reward": "Reward: nothing.",
-          "kind": "minigame",
-          "src": "Noah",
-          "use": true
-        },
-        {
-          "id": "minigames-2",
-          "q": "First player to touch something blue wins.",
-          "a": "Host judges what counts as blue.",
-          "note": "The TV screen is blue. That counts. Don't tell them.",
-          "kind": "minigame",
-          "src": "Ours",
-          "use": true
-        },
-        {
-          "id": "minigames-3",
-          "q": "Play the host in chess. You have 10 seconds.",
-          "a": "Nobody wins in 10 seconds.",
-          "note": "Reward nobody. Or give it to whoever complains the least.",
-          "kind": "minigame",
-          "src": "Noah (changed)",
-          "use": true
-        },
-        {
-          "id": "minigames-4",
-          "q": "Beat the host in rock paper scissors.\n(The host goes second.)",
-          "a": "The host wins.",
-          "kind": "minigame",
-          "src": "Ours",
-          "use": true
-        },
-        {
-          "id": "minigames-5",
-          "q": "Staring contest with the host.",
-          "a": "Host decides who blinked.",
-          "kind": "minigame",
-          "src": "Ours",
-          "use": true
-        },
-        {
-          "id": "minigames-6",
-          "q": "Black to move.",
-          "a": "Whatever the puzzle's answer is.",
-          "note": "Needs a picture: a chess puzzle. Add it with Edit, then Picture.",
-          "src": "Noah",
-          "use": true
-        },
-        {
-          "id": "minigames-7",
-          "q": "Play the host in Connect Four.",
-          "a": "Host plays for real.",
-          "kind": "minigame",
-          "src": "Noah",
-          "use": true
-        },
-        {
-          "id": "minigames-8",
-          "q": "Play the host in rock paper scissors.",
-          "a": "Host plays for real.",
-          "kind": "minigame",
-          "src": "Noah",
-          "use": true
-        },
-        {
-          "id": "minigames-9",
-          "kind": "minigame",
-          "q": "Hum a song. First team to name it wins.",
-          "a": "Host picks the song and hums it.",
-          "note": "Hum badly on purpose.",
           "src": "Ours",
           "use": true
         }

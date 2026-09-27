@@ -198,6 +198,7 @@ function buildView() {
     const { cat, clue } = found;
     screen = { type: "clue", cat: cat.name, value: clue.value, badge: BADGES[clue.kind] || "", q: clue.q };
     if (clue.img && (clue.imgAt !== "a" || s.stage >= 1)) screen.img = clue.img;
+    if (s.board) screen.board = s.board;
     if (s.stage >= 1 && clue.kind !== "chaos") screen.a = answerFor(game, clue);
     if (s.stage >= 2 && clue.reward) screen.twist = clue.reward;
   }
@@ -216,6 +217,7 @@ function render() {
   renderBoard();
   renderLive();
   renderTeams();
+  renderSwap();
   renderCoin();
   renderStatus();
 }
@@ -298,6 +300,7 @@ function renderLive() {
         ${clue.reward ? `<button class="btn primary" id="revealT" ${s.stage >= 2 ? "disabled" : ""}>Reveal twist</button>` : ""}
         ${kind === "coin" ? `<button class="btn" id="liveCoin">Flip the coin</button>` : ""}
       </div>
+      ${s.board ? boardControls(s.board) : ""}
       ${scoreButtons(clue.value)}
       <div class="row sheet-actions">
         <button class="btn good big" id="done">Done → board</button>
@@ -307,6 +310,24 @@ function renderLive() {
   }
 
   el.innerHTML = "";
+}
+
+function boardControls(b) {
+  const names = PIECE_NAMES[b.type];
+  const status = b.result
+    ? b.result === "draw"
+      ? "It's a draw."
+      : names[b.result] + " wins!"
+    : names[b.turn] + "'s turn. " + (b.type === "connect4" ? "Tap a column to drop a piece." : "Tap a square.");
+  let cells = "";
+  b.cells.forEach((v, i) => {
+    cells += `<button class="gcell ${b.type} ${v ? "p" + v : ""}" data-cell="${i}">${b.type === "tictactoe" ? v : ""}</button>`;
+  });
+  return `<div class="gctl">
+    <div class="hint"><b>${status}</b></div>
+    <div class="gboard" style="grid-template-columns:repeat(${b.cols},1fr);max-width:${Math.min(360, b.cols * 60)}px">${cells}</div>
+    <div class="row"><button class="btn small" id="boardReset">Reset board</button></div>
+  </div>`;
 }
 
 function renderTeams() {
@@ -334,6 +355,16 @@ function renderTeams() {
     .join("");
 }
 
+function renderSwap() {
+  ["swapA", "swapB"].forEach((id, n) => {
+    const sel = $(id);
+    const prev = sel.value;
+    sel.innerHTML = game.teams.map((t) => `<option value="${t.id}">${esc(t.name)}</option>`).join("");
+    if (game.teams.some((t) => t.id === prev)) sel.value = prev;
+    else if (game.teams[n]) sel.value = game.teams[n].id;
+  });
+}
+
 function renderCoin() {
   const s = game.screen;
   const landed = $("landed");
@@ -346,6 +377,8 @@ function renderCoin() {
 
 function openClue(qid) {
   game.screen = { type: "clue", qid, stage: 0 };
+  const found = findClue(qid);
+  if (found && found.clue.game) game.screen.board = newBoard(found.clue.game);
   commit();
   sfx("whoosh");
 }
@@ -467,6 +500,18 @@ $("castSave").onclick = () => {
   location.reload();
 };
 
+$("swapBtn").onclick = () => {
+  const a = game.teams.find((t) => t.id === $("swapA").value);
+  const b = game.teams.find((t) => t.id === $("swapB").value);
+  if (!a || !b || a === b) return;
+  const diff = b.score - a.score;
+  a.score += diff;
+  b.score -= diff;
+  undoStack.push({ id: a.id, amount: diff }, { id: b.id, amount: -diff });
+  commit();
+  sfx("whoosh");
+};
+
 $("undo").onclick = () => {
   const last = undoStack.pop();
   if (!last) return;
@@ -496,6 +541,19 @@ $("live").onclick = (e) => {
     game.screen.stage = 2;
     commit();
     sfx("reveal");
+  }
+  if (t.dataset.cell && game.screen.board) {
+    const next = boardMove(game.screen.board, Number(t.dataset.cell));
+    if (next) {
+      game.screen.board = next;
+      commit();
+      sfx(next.result ? (next.result === "draw" ? "sad" : "correct") : "drop");
+    }
+  }
+  if (t.id === "boardReset") {
+    const { clue } = findClue(game.screen.qid);
+    game.screen.board = newBoard(clue.game);
+    commit();
   }
   if (t.id === "done") finishClue();
   if (t.id === "cancel") setScreen({ type: "board" });

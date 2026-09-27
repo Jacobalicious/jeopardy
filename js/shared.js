@@ -1,7 +1,7 @@
 // Shared by the host, the TV and the editor:
 // the question library, game state, window-to-window syncing, and sounds.
 
-const LIB_KEY = "jeopardy-library-v4";
+const LIB_KEY = "jeopardy-library-v5";
 const STATE_KEY = "jeopardy-game-v2";
 const VIEW_KEY = "jeopardy-view-v2";
 const MSG_KEY = "jeopardy-msg-v2";
@@ -333,6 +333,10 @@ const Sfx = (() => {
       bell(midi(79), 0.25, 0.12, 0.9);
       bell(midi(86), 0.33, 0.1, 0.9);
     },
+    drop() {
+      voice(520, 0, 0.12, { type: "triangle", vol: 0.2, slideTo: 260 });
+      noise(0.08, 0.06, { type: "lowpass", freq: 900, vol: 0.2 });
+    },
     whoosh() {
       noise(0, 0.45, { from: 400, to: 2800, q: 1.5, vol: 0.15, attack: 0.15 });
     },
@@ -412,6 +416,55 @@ const Sfx = (() => {
 
   return { play, unlock: ac };
 })();
+
+// ---------- Game boards (tic-tac-toe, Connect Four) ----------
+
+function newBoard(spec) {
+  const c4 = spec.type === "connect4";
+  const cols = c4 ? Math.min(10, Math.max(3, Number(spec.cols) || 7)) : 3;
+  const rows = c4 ? Math.min(10, Math.max(3, Number(spec.rows) || 6)) : 3;
+  return { type: spec.type, cols, rows, win: c4 ? 4 : 3, cells: Array(cols * rows).fill(""), turn: "X", result: null };
+}
+
+// Returns the new board after a tap on cell i, or null if the move isn't allowed.
+function boardMove(b, i) {
+  if (b.result) return null;
+  let at = i;
+  if (b.type === "connect4") {
+    const col = i % b.cols;
+    at = -1;
+    for (let r = b.rows - 1; r >= 0; r--) {
+      if (!b.cells[r * b.cols + col]) {
+        at = r * b.cols + col;
+        break;
+      }
+    }
+    if (at < 0) return null;
+  } else if (b.cells[at]) return null;
+  const cells = b.cells.slice();
+  cells[at] = b.turn;
+  const next = { ...b, cells, turn: b.turn === "X" ? "O" : "X" };
+  next.result = boardResult(next);
+  return next;
+}
+
+function boardResult(b) {
+  const get = (r, c) => (r >= 0 && c >= 0 && r < b.rows && c < b.cols ? b.cells[r * b.cols + c] : "");
+  for (let r = 0; r < b.rows; r++) {
+    for (let c = 0; c < b.cols; c++) {
+      const p = get(r, c);
+      if (!p) continue;
+      for (const [dr, dc] of [[0, 1], [1, 0], [1, 1], [1, -1]]) {
+        let n = 1;
+        while (n < b.win && get(r + dr * n, c + dc * n) === p) n++;
+        if (n === b.win) return p;
+      }
+    }
+  }
+  return b.cells.every((x) => x) ? "draw" : null;
+}
+
+const PIECE_NAMES = { tictactoe: { X: "X", O: "O" }, connect4: { X: "Red", O: "Yellow" } };
 
 const SOUND_BUTTONS = [
   ["ding", "Ding"],
