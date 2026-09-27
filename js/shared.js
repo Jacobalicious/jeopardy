@@ -89,7 +89,10 @@ function buildBoard(lib) {
 
 function answerFor(game, clue) {
   if (clue.kind === "callback") {
-    return game.firstAnswer || "(Nothing answered yet tonight, so... whatever you want.)";
+    const f = game.first;
+    // Picked as the very first question of the night: it's the answer to itself.
+    if (!f || f.qid === clue.id) return "This one.\n(This was the first question tonight.)";
+    return f.a + "\n(It was " + f.cat + " " + f.value + ": " + f.q + ")";
   }
   return clue.a || "";
 }

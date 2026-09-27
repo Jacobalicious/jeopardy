@@ -14,7 +14,7 @@ function freshGame(teamCount = 3, oldTeams = []) {
   for (let i = 0; i < teamCount; i++) {
     teams.push({ id: uid(), name: (oldTeams[i] && oldTeams[i].name) || "Team " + (i + 1), score: 0 });
   }
-  return { teams, used: {}, firstAnswer: null, screen: { type: "splash" } };
+  return { teams, used: {}, first: null, screen: { type: "splash" } };
 }
 
 function loadGame() {
@@ -441,6 +441,18 @@ function openClue(qid) {
   game.screen = { type: "clue", qid, stage: 0 };
   const found = findClue(qid);
   if (found && found.clue.game) game.screen.board = newBoard(found.clue.game);
+  // Remember the first question of the night for the memory-test question.
+  if (found && !game.first) {
+    const { cat, clue } = found;
+    game.first = {
+      qid,
+      cat: cat.name,
+      value: clue.value,
+      q: clue.q.replace(/\n/g, " "),
+      // Chaos squares have no real answer, so remember what they said instead.
+      a: clue.kind === "chaos" ? clue.q.replace(/\n/g, " ") : clue.a,
+    };
+  }
   commit();
   sfx("whoosh");
 }
@@ -467,7 +479,6 @@ function finishClue() {
   if (s.type !== "clue") return setScreen({ type: "board" });
   const found = findClue(s.qid);
   game.used[s.qid] = true;
-  if (found && !game.firstAnswer && !found.clue.kind) game.firstAnswer = found.clue.a;
   setScreen({ type: "board" });
 }
 
@@ -644,7 +655,11 @@ $("live").onclick = (e) => {
     commit();
   }
   if (t.id === "done") finishClue();
-  if (t.id === "cancel") setScreen({ type: "board" });
+  if (t.id === "cancel") {
+    // A question opened by mistake doesn't count as the first of the night.
+    if (game.first && game.first.qid === game.screen.qid && !game.used[game.screen.qid]) game.first = null;
+    setScreen({ type: "board" });
+  }
   if (t.dataset.screenGo) setScreen({ type: t.dataset.screenGo });
   if (t.id === "liveCoin") {
     const s = game.screen;
