@@ -790,40 +790,5 @@ window.DEFAULT_LIBRARY = {
         }
       ]
     }
-  ],
-  "finals": [
-    {
-      "q": "Heads or tails?",
-      "a": "Flip the coin.",
-      "note": "Everyone bets first, THEN you reveal the question. Write answers down secretly.",
-      "kind": "coin",
-      "category": "The Western Roman Empire",
-      "id": "final-1"
-    },
-    {
-      "q": "Final question.",
-      "a": "AUTOMATIC LOSS. Everyone loses what they bet.",
-      "note": "Get bets first. Someone will bet a negative number. Let them.",
-      "kind": "chaos",
-      "category": "Everything",
-      "id": "final-2"
-    },
-    {
-      "q": "What was the answer to the very first question of tonight's game?",
-      "a": "(Shown automatically.)",
-      "note": "Bets first. This is a callback. If the Mind Games one was already played, this is double evil.",
-      "kind": "callback",
-      "category": "Tonight's Game",
-      "id": "final-3"
-    },
-    {
-      "category": "Food",
-      "q": "Is a hot dog a sandwich?",
-      "a": "Whatever the most confident team said is wrong.",
-      "note": "Let them argue for a full minute before revealing.",
-      "src": "Ours",
-      "id": "final-4"
-    }
-  ],
-  "finalId": "final-1"
+  ]
 };

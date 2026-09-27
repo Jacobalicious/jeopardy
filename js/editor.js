@@ -2,7 +2,7 @@
 // edit, add, reorder. Everything saves to this browser automatically.
 
 let lib = loadLibrary();
-let page = { type: "board" }; // board | cat | final | search
+let page = { type: "board" }; // board | cat | search
 let editing = null; // id of the question being edited
 let query = "";
 let lastDeleted = null;
@@ -81,13 +81,9 @@ function go(p) {
 function renderSide() {
   const board = buildBoard(lib);
   const onCount = board.categories.length;
-  const final = lib.finals.find((f) => f.id === lib.finalId);
   let html = `
     <button class="nav ${page.type === "board" ? "active" : ""}" data-go="board">
       <span class="ico">🎯</span><span class="nm">The Board</span><span class="ct">${onCount} on</span>
-    </button>
-    <button class="nav ${page.type === "final" ? "active" : ""}" data-go="final">
-      <span class="ico">🏁</span><span class="nm">Final Jeopardy</span><span class="ct">${final ? esc(final.category) : "none"}</span>
     </button>
     <div class="side-label"><span>Categories</span><span>${lib.categories.length}</span></div>`;
   lib.categories.forEach((c, i) => {
@@ -145,7 +141,7 @@ function addCategory() {
 
 function render() {
   renderSide();
-  const views = { board: boardPage, cat: catPage, final: finalPage, search: searchPage };
+  const views = { board: boardPage, cat: catPage, search: searchPage };
   $("main").innerHTML = (views[page.type] || boardPage)();
   const f = document.querySelector(".qcard.editing textarea");
   if (f && document.activeElement === document.body) f.focus();
@@ -155,7 +151,6 @@ function boardPage() {
   const board = buildBoard(lib);
   const cats = board.categories;
   const total = cats.reduce((n, c) => n + c.clues.length, 0);
-  const final = board.final;
   const rows = rowsOf(lib);
   const short = cats.filter((c) => c.clues.length < rows);
   let html = `
@@ -191,12 +186,6 @@ function boardPage() {
     }
     html += `</div>`;
   }
-  html += `<div class="divider">Final Jeopardy</div>`;
-  html += final
-    ? `<div class="qcard" data-go-final="1"><div class="pick"><span class="pill">FINAL</span></div><div class="qbody">
-        <div class="tags" style="margin:0 0 6px"><span class="tag-chip cat">${esc(final.category)}</span></div>
-        <div class="qt">${esc(final.q)}</div><div class="at">${esc(final.a)}</div></div><div></div></div>`
-    : `<div class="warnbox">No Final Jeopardy picked.</div>`;
   return html;
 }
 
@@ -363,44 +352,6 @@ document.addEventListener("paste", (e) => {
   setPicture(q, item.getAsFile());
 });
 
-function finalPage() {
-  let html = `
-    <div class="page-head"><h1>Final Jeopardy</h1></div>
-    <p class="sub">Pick the one you'll play. Teams bet first, then you reveal the question.</p>`;
-  lib.finals.forEach((f) => {
-    const on = f.id === lib.finalId;
-    if (editing === f.id) {
-      const kindOpts = KINDS.map(([k, l]) => `<option value="${k}" ${(f.kind || "q") === k ? "selected" : ""}>${l}</option>`).join("");
-      html += `<div class="qcard editing" data-final="${f.id}"><div class="form">
-        <label>Category <small>(shown while they bet)</small><input type="text" data-f="category" value="${esc(f.category)}" /></label>
-        <label>Question<textarea data-f="q" rows="2">${esc(f.q)}</textarea></label>
-        <label class="ans">Answer<textarea data-f="a" rows="1">${esc(f.a)}</textarea></label>
-        <label>Host note<textarea data-f="note" rows="2">${esc(f.note)}</textarea></label>
-        <label>Type<select data-f="kind">${kindOpts}</select></label>
-        <div class="form-actions">
-          <button class="btn primary" data-act="done">Done</button>
-          <span class="spacer"></span>
-          <button class="btn bad" data-act="delete">Delete</button>
-        </div>
-      </div></div>`;
-      return;
-    }
-    html += `<div class="qcard ${on ? "" : "off"}" data-final="${f.id}">
-      <div class="pick"><button class="radio ${on ? "on" : ""}" data-act="pick" title="Use this one"></button></div>
-      <div class="qbody" data-act="edit">
-        <div class="tags" style="margin:0 0 6px"><span class="tag-chip cat">${esc(f.category)}</span>${
-      f.kind && f.kind !== "q" ? `<span class="tag-chip kind">${KIND_LABEL[f.kind]}</span>` : ""
-    }</div>
-        <div class="qt">${esc(f.q)}</div>
-        <div class="at">${esc(f.a)}</div>
-      </div>
-      <div class="qacts"><button data-act="edit" title="Edit">✎</button></div>
-    </div>`;
-  });
-  html += `<button class="add-q" id="addFinal">+ Add a Final Jeopardy</button>`;
-  return html;
-}
-
 function searchPage() {
   const q = query.toLowerCase();
   const hits = [];
@@ -432,7 +383,6 @@ $("main").addEventListener("click", (e) => {
     if (el) el.scrollIntoView({ block: "center" });
     return;
   }
-  if (t.closest("[data-go-final]")) return go({ type: "final" });
   if (t.dataset.rows) {
     lib.rows = Number(t.dataset.rows);
     save();
@@ -471,34 +421,9 @@ $("main").addEventListener("click", (e) => {
     });
     return go({ type: "board" });
   }
-  if (t.id === "addFinal") {
-    const f = { id: newId("final"), category: "New Category", q: "", a: "" };
-    lib.finals.push(f);
-    editing = f.id;
-    save();
-    return render();
-  }
-
   const actEl = t.closest("[data-act]");
   if (!actEl) return;
   const act = actEl.dataset.act;
-
-  // Final Jeopardy cards
-  const fcard = t.closest("[data-final]");
-  if (fcard) {
-    const f = lib.finals.find((x) => x.id === fcard.dataset.final);
-    if (act === "pick") lib.finalId = f.id;
-    if (act === "edit") editing = f.id;
-    if (act === "done") editing = null;
-    if (act === "delete") {
-      if (!confirm("Delete this Final Jeopardy?")) return;
-      lib.finals = lib.finals.filter((x) => x !== f);
-      if (lib.finalId === f.id) lib.finalId = lib.finals[0] ? lib.finals[0].id : null;
-      editing = null;
-    }
-    save();
-    return render();
-  }
 
   // Question cards
   const qcard = t.closest("[data-q]");
@@ -554,15 +479,6 @@ $("main").addEventListener("input", (e) => {
   }
   const field = t.dataset.f;
   if (!field) return;
-  const fcard = t.closest("[data-final]");
-  if (fcard) {
-    const f = lib.finals.find((x) => x.id === fcard.dataset.final);
-    f[field] = t.value;
-    if (field === "kind" && t.value === "q") delete f.kind;
-    save();
-    renderSide();
-    return;
-  }
   const qcard = t.closest("[data-q]");
   const c = catById(qcard.dataset.cat);
   const q = c.questions.find((x) => x.id === qcard.dataset.q);
@@ -647,7 +563,7 @@ $("importFile").onchange = async (e) => {
   if (!file) return;
   try {
     const data = JSON.parse(await file.text());
-    if (!data.categories || !data.finals) throw new Error("bad");
+    if (!data.categories) throw new Error("bad");
     if (!confirm("Replace all the questions on this device with the ones in this file?")) return;
     lib = data;
     save();

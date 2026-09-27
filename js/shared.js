@@ -66,8 +66,7 @@ function buildBoard(lib) {
         .slice(0, rowsOf(lib))
         .map((q, i) => ({ ...q, value: (i + 1) * 100 })),
     }));
-  const final = lib.finals.find((f) => f.id === lib.finalId) || lib.finals[0] || null;
-  return { title: lib.title, rows: rowsOf(lib), categories, final };
+  return { title: lib.title, rows: rowsOf(lib), categories };
 }
 
 function answerFor(game, clue) {

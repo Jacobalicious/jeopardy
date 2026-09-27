@@ -27,20 +27,72 @@ function loadGame() {
 
 // ---------- Sending to the TV ----------
 
+// Uses Google's basic Cast API (chrome.cast), which works in Chrome on both
+// computers and Android. The fancier "Cast framework" doesn't load on Android.
 const Cast = {
-  ready: false,
+  s: null, // the current session
+  status: "Looking for Chromecast support...",
+  available: false,
   session() {
-    try {
-      return this.ready ? cast.framework.CastContext.getInstance().getCurrentSession() : null;
-    } catch (e) {
-      return null;
-    }
+    return this.s;
   },
   send(msg) {
-    const s = this.session();
-    if (s) s.sendMessage(window.CAST_NS, msg).catch(() => {});
+    if (this.s) this.s.sendMessage(window.CAST_NS, msg, () => {}, () => {});
   },
 };
+
+function castStatus(text) {
+  Cast.status = text;
+  renderStatus();
+}
+
+function castStarted(session) {
+  Cast.s = session;
+  castImgs.clear();
+  session.addUpdateListener((alive) => {
+    if (!alive) {
+      Cast.s = null;
+      castStatus("Stopped casting.");
+    }
+  });
+  castStatus("Casting to " + ((session.receiver && session.receiver.friendlyName) || "the TV") + ".");
+  setTimeout(sendView, 300);
+}
+
+function castClick() {
+  if (!window.chrome || !chrome.cast || !chrome.cast.requestSession) {
+    return castStatus(Cast.status);
+  }
+  if (Cast.s) {
+    if (confirm("Stop casting to the TV?")) {
+      Cast.s.stop(
+        () => {},
+        () => {}
+      );
+      Cast.s = null;
+      castStatus("Stopped casting.");
+    }
+    return;
+  }
+  castStatus("Pick your TV...");
+  chrome.cast.requestSession(castStarted, (err) => {
+    const why = {
+      cancel: "Cancelled.",
+      timeout: "The TV didn't answer in time. Try again.",
+      receiver_unavailable: "No Chromecast found. Is your phone on the same Wi-Fi as the TV?",
+      session_error: "The Chromecast couldn't open the game. Try again in a minute.",
+      extension_missing: "This browser can't cast. Use Chrome.",
+    };
+    castStatus(why[err && err.code] || "Couldn't connect (" + ((err && err.code) || "unknown") + ").");
+  });
+}
+
+// If the Cast library never shows up, say so instead of leaving a dead button.
+setTimeout(() => {
+  if (!window.chrome || !chrome.cast || !chrome.cast.isAvailable) {
+    if (Cast.status.startsWith("Looking")) castStatus("This browser doesn't support casting. Use Chrome.");
+  }
+}, 8000);
 
 function castAppId() {
   try {
@@ -50,22 +102,25 @@ function castAppId() {
   }
 }
 
-window.__onGCastApiAvailable = (ok) => {
+window.__onGCastApiAvailable = (ok, err) => {
   const id = castAppId();
-  if (!ok || !id) return;
-  const ctx = cast.framework.CastContext.getInstance();
-  ctx.setOptions({ receiverApplicationId: id, autoJoinPolicy: chrome.cast.AutoJoinPolicy.ORIGIN_SCOPED });
-  ctx.addEventListener(cast.framework.CastContextEventType.SESSION_STATE_CHANGED, (e) => {
-    const S = cast.framework.SessionState;
-    if (e.sessionState === S.SESSION_STARTED || e.sessionState === S.SESSION_RESUMED) {
-      castImgs.clear();
-      setTimeout(sendView, 300);
-    }
-    renderStatus();
-  });
-  Cast.ready = true;
-  $("castWrap").hidden = false;
-  renderStatus();
+  if (!ok) return castStatus("Casting isn't available in this browser" + (err ? " (" + err + ")" : "") + ".");
+  if (!id) return castStatus("Chromecast isn't set up yet.");
+  const request = new chrome.cast.SessionRequest(id);
+  const config = new chrome.cast.ApiConfig(
+    request,
+    castStarted, // rejoins a game that's already on the TV
+    (availability) => {
+      Cast.available = availability === chrome.cast.ReceiverAvailability.AVAILABLE;
+      if (!Cast.s) castStatus(Cast.available ? "Chromecast found. Tap Cast." : "No Chromecast found yet. Same Wi-Fi as the TV?");
+    },
+    chrome.cast.AutoJoinPolicy.ORIGIN_SCOPED
+  );
+  chrome.cast.initialize(
+    config,
+    () => castStatus("Ready. Tap Cast to pick your TV."),
+    (e) => castStatus("Casting failed to start (" + ((e && e.code) || "unknown") + ").")
+  );
 };
 
 function sendView() {
@@ -146,13 +201,6 @@ function buildView() {
     if (s.stage >= 1 && clue.kind !== "chaos") screen.a = answerFor(game, clue);
     if (s.stage >= 2 && clue.reward) screen.twist = clue.reward;
   }
-  if (s.type === "final") {
-    const f = board.final || { category: "?", q: "?" };
-    screen = { type: "final", stage: s.stage, category: f.category };
-    if (s.stage >= 1) screen.q = f.q;
-    if (s.stage >= 2 && f.kind !== "chaos") screen.a = answerFor(game, f);
-    if (s.stage >= 2 && f.kind === "chaos") screen.a = f.a;
-  }
   if (s.type === "coin") screen = { type: "coin", id: s.id, result: s.result, label: s.label };
   return { title: lib.title, teams: game.teams, screen };
 }
@@ -173,11 +221,11 @@ function render() {
 }
 
 function renderStatus() {
-  const s = Cast.session();
-  let text = "";
-  if (s) text = "📺 " + (s.getCastDevice().friendlyName || "TV");
-  else if (tvWin && !tvWin.closed) text = "TV window open";
-  $("tvStatus").textContent = text;
+  const btn = $("castBtn");
+  btn.classList.toggle("on", !!Cast.s);
+  btn.textContent = Cast.s ? "📺 Casting" : "📺 Cast";
+  $("castStatus").textContent = Cast.status;
+  $("tvStatus").textContent = !Cast.s && tvWin && !tvWin.closed ? "TV window open" : "";
   $("castSetup").hidden = !!castAppId();
 }
 
@@ -219,7 +267,7 @@ function scoreButtons(value) {
 function renderLive() {
   const s = game.screen;
   const el = $("live");
-  const active = s.type === "clue" || s.type === "final";
+  const active = s.type === "clue";
   el.classList.toggle("active", active);
   $("backdrop").classList.toggle("active", active);
   document.body.classList.toggle("sheet-open", active);
@@ -254,41 +302,6 @@ function renderLive() {
       <div class="row sheet-actions">
         <button class="btn good big" id="done">Done → board</button>
         <button class="btn ghost" id="cancel">Cancel</button>
-      </div>`;
-    return;
-  }
-
-  if (s.type === "final") {
-    const f = board.final;
-    if (!f) {
-      el.innerHTML = `<p class="hint">No Final Jeopardy picked. Choose one in Questions.</p><button class="btn" id="cancel">Back</button>`;
-      return;
-    }
-    el.innerHTML = `
-      <h3><span class="onair">ON TV</span><span class="grow">Final Jeopardy · ${esc(f.category)}</span></h3>
-      <div class="hq">${fmt(f.q)}</div>
-      <div class="hanswer secret"><div class="lbl">Answer</div><div class="txt">${fmt(answerFor(game, f))}</div></div>
-      ${f.note ? `<div class="hnote secret"><div class="lbl">Host note</div>${fmt(f.note)}</div>` : ""}
-      <div class="row">
-        <button class="btn primary" id="finalNext" ${s.stage >= 2 ? "disabled" : ""}>${
-      s.stage === 0 ? "Bets are in → show question" : "Reveal answer"
-    }</button>
-        ${f.kind === "coin" ? `<button class="btn" id="liveCoin">Flip the coin</button>` : ""}
-      </div>
-      <p class="hint" style="margin-top:12px">Type each team's bet, then ✓ or ✗ once you've read their answers.</p>
-      ${game.teams
-        .map(
-          (t) => `<div class="qs">
-          <span class="qs-name">${esc(t.name)}</span>
-          <input type="number" inputmode="numeric" class="wager" data-id="${t.id}" placeholder="bet" />
-          <button class="btn small good" data-wager="1" data-id="${t.id}">✓</button>
-          <button class="btn small bad" data-wager="-1" data-id="${t.id}">✗</button>
-        </div>`
-        )
-        .join("")}
-      <div class="row sheet-actions">
-        <button class="btn good big" data-screen-go="scores">Show standings</button>
-        <button class="btn ghost" id="cancel">Close</button>
       </div>`;
     return;
   }
@@ -349,10 +362,6 @@ function advance() {
     } else if (s.stage === 0) s.stage = 1;
     else if (s.stage === 1 && clue.reward) s.stage = 2;
     else return;
-    commit();
-    sfx("reveal");
-  } else if (s.type === "final" && s.stage < 2) {
-    s.stage++;
     commit();
     sfx("reveal");
   }
@@ -444,7 +453,7 @@ $("sounds").onclick = (e) => {
 
 document.querySelectorAll("[data-screen]").forEach((b) => (b.onclick = () => setScreen({ type: b.dataset.screen })));
 
-$("finalBtn").onclick = () => setScreen({ type: "final", stage: 0 });
+$("castBtn").onclick = castClick;
 $("coinBtn").onclick = () => flipCoin();
 $("backBtn").onclick = () => setScreen(game.screen.back || { type: "board" });
 $("backdrop").onclick = () => {};
@@ -482,7 +491,7 @@ function scoreClick(e) {
 $("live").onclick = (e) => {
   const t = e.target;
   scoreClick(e);
-  if (t.id === "revealA" || t.id === "finalNext") advance();
+  if (t.id === "revealA") advance();
   if (t.id === "revealT") {
     game.screen.stage = 2;
     commit();
@@ -493,14 +502,8 @@ $("live").onclick = (e) => {
   if (t.dataset.screenGo) setScreen({ type: t.dataset.screenGo });
   if (t.id === "liveCoin") {
     const s = game.screen;
-    const label = s.type === "final" ? board.final.q : findClue(s.qid).clue.q;
+    const label = findClue(s.qid).clue.q;
     flipCoin(label);
-  }
-  if (t.dataset.wager) {
-    const input = document.querySelector(`.wager[data-id="${t.dataset.id}"]`);
-    const bet = Math.abs(Number(input.value) || 0);
-    addScore(t.dataset.id, bet * Number(t.dataset.wager));
-    sfx(t.dataset.wager === "1" ? "correct" : "buzzer");
   }
 };
 

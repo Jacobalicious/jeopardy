@@ -88,7 +88,7 @@ function render() {
   if (key === lastMainKey) return;
   lastMainKey = key;
   anim = null;
-  const views = { splash, board, clue, final, coin, scores: leaderboard };
+  const views = { splash, board, clue, coin, scores: leaderboard };
   main.innerHTML = (views[s.type] || splash)(s);
   if (s.type === "coin") startCoin(s);
 }
@@ -140,18 +140,6 @@ function clue(s) {
     <div class="q ${huge ? "huge" : ""} ${long ? "long" : ""}">${fmt(s.q)}</div>`;
   if (s.a != null) html += `<div class="answer">${fmt(s.a)}</div>`;
   if (s.twist) html += `<div class="twist">${fmt(s.twist)}</div>`;
-  return html + `</div>`;
-}
-
-function final(s) {
-  let html = `<div class="clue"><div class="tag"><b>Final Jeopardy</b></div>`;
-  if (s.stage === 0) {
-    html += `<div class="kind-badge">PLACE YOUR BETS</div><div class="q huge">${esc(s.category)}</div>`;
-  } else {
-    html += `<div class="tag" style="top:7vh">${esc(s.category)}</div>
-      <div class="q ${s.q.length < 22 ? "huge" : ""}">${fmt(s.q)}</div>`;
-    if (s.a != null) html += `<div class="answer">${fmt(s.a)}</div>`;
-  }
   return html + `</div>`;
 }
 

@@ -10,9 +10,7 @@
   <body class="host">
     <div class="host-top">
       <span class="brand">HOST</span>
-      <span class="cast-wrap" id="castWrap" hidden>
-        <google-cast-launcher id="castBtn"></google-cast-launcher>
-      </span>
+      <button class="btn small cast-btn" id="castBtn">📺 Cast</button>
       <span class="tv-status" id="tvStatus"></span>
       <span class="spacer"></span>
       <a class="btn small" href="editor.html">✎ Questions</a>
@@ -32,7 +30,6 @@
             <button class="btn small" data-screen="splash">Title</button>
             <button class="btn small" data-screen="board">Board</button>
             <button class="btn small" data-screen="scores">Standings</button>
-            <button class="btn small" id="finalBtn">Final Jeopardy</button>
           </div>
         </div>
 
@@ -84,6 +81,14 @@
           </p>
         </div>
 
+        <div class="panel">
+          <h3>TV</h3>
+          <p class="hint" id="castStatus"></p>
+          <p class="hint">
+            Phone: tap <b>📺 Cast</b> at the top and pick your TV. Laptop: the <b>TV window</b> button works too.
+          </p>
+        </div>
+
         <div class="panel" id="castSetup" hidden>
           <h3>Chromecast setup</h3>
           <p class="hint">
@@ -106,6 +111,6 @@
     <script src="js/default-library.js"></script>
     <script src="js/shared.js"></script>
     <script src="js/host.js"></script>
-    <script src="https://www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1"></script>
+    <script src="https://www.gstatic.com/cv/js/sender/v1/cast_sender.js"></script>
   </body>
 </html>

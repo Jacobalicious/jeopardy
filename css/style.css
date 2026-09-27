@@ -842,6 +842,12 @@ a.btn {
   font-size: 16px;
 }
 
+.cast-btn.on {
+  background: var(--gold);
+  color: #000;
+  border-color: var(--gold);
+}
+
 .cast-wrap google-cast-launcher {
   display: inline-block;
   width: 30px;
