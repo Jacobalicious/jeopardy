@@ -483,12 +483,22 @@ window.DEFAULT_LIBRARY = {
         },
         {
           "id": "nerd-stuff-hard2",
-          "q": "Name all four ghosts in the original Pac-Man.",
-          "a": "Blinky, Pinky, Inky and Clyde.",
-          "note": "All four needed. Real question, real answer. No trick this time.",
+          "q": "Which one?",
+          "a": "OH HELL NAH, U FURRY",
           "src": "Real trivia",
           "batch": "hard-trivia",
-          "use": true
+          "use": true,
+          "pics": [
+            {
+              "src": "img/nerd-stuff-hard2-1.jpg"
+            },
+            {
+              "src": "img/nerd-stuff-hard2-2.jpg"
+            },
+            {
+              "src": "img/nerd-stuff-hard2-3.jpg"
+            }
+          ]
         },
         {
           "id": "nerd-stuff-hard3",
