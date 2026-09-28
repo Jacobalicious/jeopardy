@@ -918,3 +918,27 @@ body.ed {
     font-size: 10px;
   }
 }
+
+/* One picture in a question's picture list */
+
+.pic-item {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  padding: 8px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+}
+
+.pic-item .pic-preview {
+  max-width: 180px;
+  max-height: 140px;
+}
+
+.pic-item-ctl {
+  display: grid;
+  gap: 8px;
+  flex: 1;
+  min-width: 200px;
+}

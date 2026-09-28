@@ -238,16 +238,20 @@ function hashStr(s) {
   return (h >>> 0).toString(36) + s.length.toString(36);
 }
 function chunked(view, send, sent) {
-  const img = view.screen.img;
-  if (!img || !img.startsWith("data:")) return view;
-  const id = hashStr(img);
-  if (!sent.has(id)) {
-    const size = 16000; // small pieces are safer over Chromecast
-    const total = Math.ceil(img.length / size);
-    for (let i = 0; i < total; i++) send({ t: "img", id, i, total, data: img.slice(i * size, (i + 1) * size) });
-    sent.add(id);
-  }
-  return { ...view, screen: { ...view.screen, img: "cast:" + id } };
+  const list = view.screen.imgs;
+  if (!list || !list.some((img) => img.startsWith("data:"))) return view;
+  const imgs = list.map((img) => {
+    if (!img.startsWith("data:")) return img;
+    const id = hashStr(img);
+    if (!sent.has(id)) {
+      const size = 16000; // small pieces are safer over Chromecast
+      const total = Math.ceil(img.length / size);
+      for (let i = 0; i < total; i++) send({ t: "img", id, i, total, data: img.slice(i * size, (i + 1) * size) });
+      sent.add(id);
+    }
+    return "cast:" + id;
+  });
+  return { ...view, screen: { ...view.screen, imgs } };
 }
 
 function sfx(name) {
@@ -300,7 +304,8 @@ function buildView() {
     if (s.stage < 0) return { title: lib.title, teams: game.teams, screen: { type: "double", cat: cat.name, value: clue.value } };
     screen = { type: "clue", cat: cat.name, value: clue.value, badge: BADGES[clue.kind] || "", q: clue.q };
     if (isDouble(s.qid)) screen.doubled = true;
-    if (clue.img && (clue.imgAt !== "a" || s.stage >= 1)) screen.img = clue.img;
+    const pics = (clue.pics || []).filter((p) => p.at !== "a" || s.stage >= 1).map((p) => p.src);
+    if (pics.length) screen.imgs = pics;
     if (s.board) screen.board = s.board;
     if (s.stage >= 1 && clue.kind !== "chaos") screen.a = answerFor(game, clue);
     if (s.stage >= 2 && clue.reward) screen.twist = clue.reward;
@@ -499,7 +504,12 @@ function renderLive() {
           : ""
       }
       <div class="hq">${fmt(clue.q)}</div>
-      ${clue.img ? `<img class="hpic" src="${esc(clue.img)}" alt="" />${clue.imgAt === "a" ? `<div class="hint">Picture shows on the TV with the answer.</div>` : ""}` : ""}
+      ${(clue.pics || [])
+        .map(
+          (p) =>
+            `<img class="hpic" src="${esc(p.src)}" alt="" />${p.at === "a" ? `<div class="hint">That picture shows on the TV with the answer.</div>` : ""}`
+        )
+        .join("")}
       <div class="hanswer secret"><div class="lbl">${isChaos ? "What happens" : "Answer"}${
       s.stage >= 1 && !isChaos ? " · on TV" : ""
     }</div><div class="txt">${fmt(answerFor(game, clue))}</div></div>

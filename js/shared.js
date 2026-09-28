@@ -85,9 +85,23 @@ function saveTheme(id) {
 function loadLibrary() {
   try {
     const raw = localStorage.getItem(LIB_KEY);
-    if (raw) return useHostedPictures(addNewDefaults(JSON.parse(raw)));
+    if (raw) return useHostedPictures(addNewDefaults(withPicLists(JSON.parse(raw))));
   } catch (e) {}
-  return JSON.parse(JSON.stringify(window.DEFAULT_LIBRARY));
+  return withPicLists(JSON.parse(JSON.stringify(window.DEFAULT_LIBRARY)));
+}
+
+// A question's pictures: q.pics = [{ src, at }], where at is "a" for
+// "show it when the answer is revealed". Questions saved before a question
+// could have several pictures had a single q.img / q.imgAt instead.
+function withPicLists(lib) {
+  lib.categories.forEach((c) =>
+    c.questions.forEach((q) => {
+      if (q.img && !q.pics) q.pics = [q.imgAt === "a" ? { src: q.img, at: "a" } : { src: q.img }];
+      delete q.img;
+      delete q.imgAt;
+    })
+  );
+  return lib;
 }
 
 // Questions added to the built-in set later carry a "batch" name. A device
@@ -100,19 +114,20 @@ const LIBRARY_BATCHES = { "hard-trivia": { rows: 9 } };
 // has been put on the site as a file (img/...), use the file instead.
 function useHostedPictures(lib) {
   const hosted = {};
-  window.DEFAULT_LIBRARY.categories.forEach((c) =>
-    c.questions.forEach((q) => {
-      if (q.img && !q.img.startsWith("data:")) hosted[q.id] = q.img;
-    })
+  withPicLists(JSON.parse(JSON.stringify(window.DEFAULT_LIBRARY))).categories.forEach((c) =>
+    c.questions.forEach((q) => (hosted[q.id] = q.pics || []))
   );
   let changed = false;
   lib.categories.forEach((c) =>
-    c.questions.forEach((q) => {
-      if (q.img && q.img.startsWith("data:") && hosted[q.id]) {
-        q.img = hosted[q.id];
-        changed = true;
-      }
-    })
+    c.questions.forEach((q) =>
+      (q.pics || []).forEach((p, i) => {
+        const file = hosted[q.id] && hosted[q.id][i];
+        if (p.src.startsWith("data:") && file && !file.src.startsWith("data:")) {
+          p.src = file.src;
+          changed = true;
+        }
+      })
+    )
   );
   if (changed) saveLibrary(lib);
   return lib;
@@ -213,10 +228,11 @@ function withoutUploads(lib) {
   const copy = JSON.parse(JSON.stringify(lib));
   copy.categories.forEach((c) =>
     c.questions.forEach((q) => {
-      if (q.img && q.img.startsWith("data:")) {
-        delete q.img;
-        dropped++;
-      }
+      if (!q.pics) return;
+      const keep = q.pics.filter((p) => !p.src.startsWith("data:"));
+      dropped += q.pics.length - keep.length;
+      if (keep.length) q.pics = keep;
+      else delete q.pics;
     })
   );
   return { lib: copy, dropped };

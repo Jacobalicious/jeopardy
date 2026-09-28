@@ -464,14 +464,22 @@ window.DEFAULT_LIBRARY = {
           "q": "Who is this?",
           "a": "lil ghost",
           "use": true,
-          "img": "img/nerd-stuff-gjrpcal.jpg"
+          "pics": [
+            {
+              "src": "img/nerd-stuff-gjrpcal.jpg"
+            }
+          ]
         },
         {
           "id": "nerd-stuff-8lfvzpb",
           "q": "White to Move",
           "a": "H1 to H2",
           "use": true,
-          "img": "img/nerd-stuff-8lfvzpb.jpg"
+          "pics": [
+            {
+              "src": "img/nerd-stuff-8lfvzpb.jpg"
+            }
+          ]
         },
         {
           "id": "nerd-stuff-hard2",
@@ -635,8 +643,12 @@ window.DEFAULT_LIBRARY = {
           "a": "H1 to H2",
           "src": "Noah",
           "use": false,
-          "img": "img/minigames-6.jpg",
-          "reward": ""
+          "reward": "",
+          "pics": [
+            {
+              "src": "img/minigames-6.jpg"
+            }
+          ]
         },
         {
           "id": "minigames-hard3",

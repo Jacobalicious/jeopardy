@@ -138,8 +138,8 @@ function askForImg(id) {
   }
   if (tvRelay) tvRelay.send("hello", msg);
   setTimeout(() => {
-    const cur = view && view.screen && view.screen.img;
-    if (!imgs[id] && cur === "cast:" + id) askForImg(id);
+    const cur = (view && view.screen && view.screen.imgs) || [];
+    if (!imgs[id] && cur.includes("cast:" + id)) askForImg(id);
   }, 3100);
 }
 
@@ -224,13 +224,18 @@ function board(s) {
 function clue(s) {
   const huge = s.badge === "CHAOS" && s.q.length < 22;
   const long = s.q.length > 120;
+  const list = s.imgs || [];
   let pic = "";
-  if (s.img) {
-    const src = s.img.startsWith("cast:") ? imgs[s.img.slice(5)] : s.img;
-    if (!src) setTimeout(() => askForImg(s.img.slice(5)), 1500);
-    pic = src ? `<img class="qimg" src="${esc(src)}" alt="" />` : `<div class="img-wait">Loading picture...</div>`;
+  if (list.length) {
+    pic = `<div class="qimgs n${Math.min(list.length, 4)}">${list
+      .map((img) => {
+        const src = img.startsWith("cast:") ? imgs[img.slice(5)] : img;
+        if (!src) setTimeout(() => askForImg(img.slice(5)), 1500);
+        return src ? `<img class="qimg" src="${esc(src)}" alt="" />` : `<div class="img-wait">Loading picture...</div>`;
+      })
+      .join("")}</div>`;
   }
-  let html = `<div class="clue ${s.img || s.board ? "has-img" : ""}">
+  let html = `<div class="clue ${list.length || s.board ? "has-img" : ""}">
     <div class="tag">${esc(s.cat)} &middot; <b>${s.doubled ? s.value * 2 + " (DOUBLE POINTS)" : s.value}</b></div>
     ${s.badge ? `<div class="kind-badge">${esc(s.badge)}</div>` : ""}
     ${pic}

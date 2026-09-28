@@ -1650,3 +1650,34 @@ body.tv .start-overlay .room-big b,
 .qs-given.neg {
   color: var(--red);
 }
+
+/* Several pictures on one question sit side by side */
+
+.clue .qimgs {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 2vw;
+  margin: 3vh 0;
+  max-width: 90vw;
+}
+
+.clue .qimgs .qimg,
+.clue .qimgs .img-wait {
+  margin: 0;
+  min-width: 0;
+}
+
+.clue .qimgs.n2 .qimg {
+  max-width: 43vw;
+}
+
+.clue .qimgs.n3 .qimg {
+  max-width: 28vw;
+  max-height: 38vh;
+}
+
+.clue .qimgs.n4 .qimg {
+  max-width: 21vw;
+  max-height: 34vh;
+}

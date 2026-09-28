@@ -219,7 +219,8 @@ function card(c, q, i, opts = {}) {
   const twist = q.reward ? `<span class="tag-chip twist">has twist</span>` : "";
   const note = q.note ? `<span class="tag-chip">host note</span>` : "";
   const src = q.src ? `<span class="tag-chip">${esc(q.src)}</span>` : "";
-  const pic = q.img ? `<span class="tag-chip pic">🖼 picture</span>` : "";
+  const n = (q.pics || []).length;
+  const pic = n ? `<span class="tag-chip pic">🖼 ${n > 1 ? n + " pictures" : "picture"}</span>` : "";
   const gameChip = q.game ? `<span class="tag-chip kind">${q.game.type === "connect4" ? `Connect Four ${newBoard(q.game).cols}×${newBoard(q.game).rows}` : "Tic-tac-toe"} board</span>` : "";
   const catChip = opts.showCat ? `<span class="tag-chip cat">${esc(c.name)}</span>` : "";
   return `<div class="qcard ${q.use ? "" : "off"}" data-cat="${c.id}" data-q="${q.id}">
@@ -290,24 +291,33 @@ function gameField(q) {
 }
 
 function picField(q) {
-  const link = q.img && !q.img.startsWith("data:") ? q.img : "";
+  const pics = q.pics || [];
+  const items = pics
+    .map(
+      (p, i) => `<div class="pic-item">
+      <img class="pic-preview" src="${esc(p.src)}" alt="" />
+      <div class="pic-item-ctl">
+        <label class="inline">Show it <select data-f="picAt" data-pi="${i}">
+          <option value="q" ${p.at !== "a" ? "selected" : ""}>with the question</option>
+          <option value="a" ${p.at === "a" ? "selected" : ""}>when the answer is revealed</option>
+        </select></label>
+        <div class="row">
+          ${pics.length > 1 ? `<button class="btn small" data-act="pic-left" data-pi="${i}" ${i === 0 ? "disabled" : ""}>← Earlier</button>
+          <button class="btn small" data-act="pic-right" data-pi="${i}" ${i === pics.length - 1 ? "disabled" : ""}>Later →</button>` : ""}
+          <button class="btn small bad" data-act="pic-remove" data-pi="${i}">Remove</button>
+        </div>
+      </div>
+    </div>`
+    )
+    .join("");
   return `<div class="pic-field">
-    <div class="pic-lbl">Picture <small>(optional, shown on the TV)</small></div>
-    ${q.img ? `<img class="pic-preview" src="${esc(q.img)}" alt="" />` : ""}
+    <div class="pic-lbl">Pictures <small>(optional, shown on the TV side by side)</small></div>
+    ${items}
     <div class="row">
-      <button class="btn" data-act="pic-upload">📷 ${q.img ? "Change picture" : "Upload picture"}</button>
-      ${q.img ? `<button class="btn bad" data-act="pic-remove">Remove</button>` : ""}
+      <button class="btn" data-act="pic-upload">📷 ${pics.length ? "Add another picture" : "Upload pictures"}</button>
     </div>
-    <input type="text" data-f="imgUrl" placeholder="...or paste a link to a picture" value="${esc(link)}" />
-    ${
-      q.img
-        ? `<label class="inline">Show it <select data-f="imgAt">
-            <option value="q" ${q.imgAt !== "a" ? "selected" : ""}>with the question</option>
-            <option value="a" ${q.imgAt === "a" ? "selected" : ""}>when the answer is revealed</option>
-          </select></label>`
-        : ""
-    }
-    <small class="pic-hint">Tip: you can also copy a picture and press Ctrl+V while editing.</small>
+    <input type="text" data-f="picUrl" placeholder="...or paste a link to a picture" value="" />
+    <small class="pic-hint">You can pick several at once. Tip: you can also copy a picture and press Ctrl+V while editing.</small>
   </div>`;
 }
 
@@ -336,17 +346,23 @@ async function compressImage(file) {
 }
 
 let picTarget = null;
-async function setPicture(q, file) {
-  if (!file || !file.type.startsWith("image/")) return;
-  const before = q.img;
-  try {
-    q.img = await compressImage(file);
-  } catch (e) {
-    return toast("Couldn't read that picture.");
+async function addPictures(q, files) {
+  files = [...files].filter((f) => f && f.type.startsWith("image/"));
+  if (!files.length) return;
+  const before = (q.pics || []).slice();
+  const added = [];
+  for (const f of files) {
+    try {
+      added.push({ src: await compressImage(f) });
+    } catch (e) {
+      toast("Couldn't read that picture.");
+    }
   }
+  if (!added.length) return;
+  q.pics = before.concat(added);
   if (!save()) {
-    if (before) q.img = before;
-    else delete q.img;
+    if (before.length) q.pics = before;
+    else delete q.pics;
     save();
     toast("Out of space on this device. Remove some pictures, or use picture links instead.");
   }
@@ -363,7 +379,7 @@ function questionById(id) {
 
 $("picFile").onchange = (e) => {
   const q = picTarget && questionById(picTarget);
-  if (q) setPicture(q, e.target.files[0]);
+  if (q) addPictures(q, e.target.files);
   e.target.value = "";
 };
 
@@ -373,7 +389,7 @@ document.addEventListener("paste", (e) => {
   const item = [...(e.clipboardData ? e.clipboardData.items : [])].find((i) => i.type.startsWith("image/"));
   if (!item) return;
   e.preventDefault();
-  setPicture(q, item.getAsFile());
+  addPictures(q, [item.getAsFile()]);
 });
 
 function searchPage() {
@@ -461,17 +477,20 @@ $("main").addEventListener("click", (e) => {
     $("picFile").click();
     return;
   }
+  const pi = Number(actEl.dataset.pi);
   if (act === "pic-remove") {
-    delete q.img;
-    delete q.imgAt;
+    q.pics.splice(pi, 1);
+    if (!q.pics.length) delete q.pics;
   }
+  if (act === "pic-left") move(q.pics, pi, -1);
+  if (act === "pic-right") move(q.pics, pi, 1);
   if (act === "use") q.use = !q.use;
   if (act === "up") move(c.questions, i, -1);
   if (act === "down") move(c.questions, i, 1);
   if (act === "edit") editing = q.id;
   if (act === "done") editing = null;
   if (act === "dup") {
-    const copy = { ...q, id: newId(c.id), use: false };
+    const copy = { ...JSON.parse(JSON.stringify(q)), id: newId(c.id), use: false };
     c.questions.splice(i + 1, 0, copy);
     editing = copy.id;
   }
@@ -527,16 +546,11 @@ $("main").addEventListener("input", (e) => {
     save();
     return;
   }
-  if (field === "imgUrl") {
-    const v = t.value.trim();
-    if (v) q.img = v;
-    else if (q.img && !q.img.startsWith("data:")) delete q.img;
-    save();
-    return;
-  }
-  if (field === "imgAt") {
-    if (t.value === "a") q.imgAt = "a";
-    else delete q.imgAt;
+  if (field === "picUrl") return; // added once the link is finished (see "change" below)
+  if (field === "picAt") {
+    const p = q.pics[Number(t.dataset.pi)];
+    if (t.value === "a") p.at = "a";
+    else delete p.at;
     save();
     return;
   }
@@ -550,9 +564,15 @@ $("main").addEventListener("input", (e) => {
   save();
 });
 
-// Show the preview once a picture link has been pasted or typed.
+// A pasted or typed picture link is added once it's finished.
 $("main").addEventListener("change", (e) => {
-  if (e.target.dataset.f === "imgUrl") render();
+  const t = e.target;
+  if (t.dataset.f !== "picUrl" || !t.value.trim()) return;
+  const qcard = t.closest("[data-q]");
+  const q = catById(qcard.dataset.cat).questions.find((x) => x.id === qcard.dataset.q);
+  q.pics = (q.pics || []).concat({ src: t.value.trim() });
+  save();
+  render();
 });
 
 // Grow textareas to fit.
