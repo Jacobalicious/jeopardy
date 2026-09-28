@@ -164,9 +164,8 @@ function splash() {
     <ol>
       <li><b>Say "DING"</b> out loud to answer.</li>
       <li>Only say DING <b>after the host finishes reading the question.</b></li>
-      <li>The host is always right. <b>Especially when wrong.</b></li>
-      <li>Points are made up and will be taken away.</li>
-      <li>There is no rule 5. <b>Minus 100 for reading it.</b></li>
+      <li>Team with the most <b>POINTS WINS!</b></li>
+      <li>There is no rule 4. <b>Minus 100 for reading it.</b></li>
     </ol>
   </div>`;
 }
