@@ -72,7 +72,7 @@ const INTRO_SLIDES = [
   {
     name: "why",
     layout: "crisis",
-    lines: ["why am i telling you this"],
+    lines: ["u know what,", "why am i telling you this"],
     counter: "5 / 1",
     bg: "#e4e4e4",
     ink: "#555",
@@ -81,7 +81,7 @@ const INTRO_SLIDES = [
   {
     name: "meat rock",
     layout: "crisis",
-    lines: ["we are all just meat", "on a rock", "spinning around a big fire", "in the dark"],
+    lines: ["really we are all just meat", "on a rock", "spinning around a big fire", "in the dark"],
     counter: "",
     bg: "#1c1c1c",
     ink: "#8a8a8a",
@@ -100,16 +100,16 @@ const INTRO_SLIDES = [
   {
     name: "who cares",
     layout: "big",
-    lines: ["who even the frick cares"],
+    lines: ["who even the f*ck cares"],
     counter: "",
     bg: "#fff",
     ink: "#000",
     note: "Say it with your whole chest.",
   },
   {
-    name: "LET'S PLAY JEOPARDY",
+    name: "LET'S PLAY JEOPARDY INSTEAD",
     layout: "crash",
-    lines: ["LET'S PLAY JEOPARDY"],
+    lines: ["LET'S PLAY JEOPARDY INSTEAD"],
     counter: "",
     note: "The slide falls off the screen and the game appears. Next goes to the board.",
   },

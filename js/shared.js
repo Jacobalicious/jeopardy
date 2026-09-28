@@ -85,7 +85,7 @@ function saveTheme(id) {
 function loadLibrary() {
   try {
     const raw = localStorage.getItem(LIB_KEY);
-    if (raw) return addNewDefaults(JSON.parse(raw));
+    if (raw) return useHostedPictures(addNewDefaults(JSON.parse(raw)));
   } catch (e) {}
   return JSON.parse(JSON.stringify(window.DEFAULT_LIBRARY));
 }
@@ -94,6 +94,29 @@ function loadLibrary() {
 // with its own saved edits gets each batch slotted in once, in the same spot
 // as in the built-in set, without touching anything else.
 const LIBRARY_BATCHES = { "hard-trivia": { rows: 9 } };
+
+// A picture uploaded on a phone lives inside the saved questions and has to
+// be sent to the TV in pieces, which Chromecast can drop. Once that picture
+// has been put on the site as a file (img/...), use the file instead.
+function useHostedPictures(lib) {
+  const hosted = {};
+  window.DEFAULT_LIBRARY.categories.forEach((c) =>
+    c.questions.forEach((q) => {
+      if (q.img && !q.img.startsWith("data:")) hosted[q.id] = q.img;
+    })
+  );
+  let changed = false;
+  lib.categories.forEach((c) =>
+    c.questions.forEach((q) => {
+      if (q.img && q.img.startsWith("data:") && hosted[q.id]) {
+        q.img = hosted[q.id];
+        changed = true;
+      }
+    })
+  );
+  if (changed) saveLibrary(lib);
+  return lib;
+}
 
 function addNewDefaults(lib) {
   lib.batches = lib.batches || [];

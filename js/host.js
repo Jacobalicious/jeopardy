@@ -242,7 +242,7 @@ function chunked(view, send, sent) {
   if (!img || !img.startsWith("data:")) return view;
   const id = hashStr(img);
   if (!sent.has(id)) {
-    const size = 48000;
+    const size = 16000; // small pieces are safer over Chromecast
     const total = Math.ceil(img.length / size);
     for (let i = 0; i < total; i++) send({ t: "img", id, i, total, data: img.slice(i * size, (i + 1) * size) });
     sent.add(id);
