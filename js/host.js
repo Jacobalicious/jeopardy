@@ -404,23 +404,61 @@ function renderBoard() {
   $("hboard").innerHTML = html;
 }
 
+// Points go on 100 at a time, so a 500 answer is five taps and five happy
+// sounds. The small number under each team is what they've got from this
+// question so far.
+const STEP = 100;
+
 function scoreButtons(value) {
+  const taps = Math.round(value / STEP);
+  const given = game.screen.given || {};
   return `<div class="quick-scores">
     <div class="sfx-row">
       <button class="btn big-sfx ding" data-sfx-live="ding">🔔 Ding</button>
-      <button class="btn big-sfx wrong" data-sfx-live="buzzer">❌ Wrong</button>
+      <button class="btn big-sfx wrong" data-sfx-live="${wrongSound()}">❌ Wrong</button>
     </div>
+    <div class="hint tap-hint">Worth ${value}: tap <b>+${STEP}</b> ${taps} time${taps === 1 ? "" : "s"}.</div>
     ${game.teams
-      .map(
-        (t) => `<div class="qs big">
-        <span class="qs-name">${esc(t.name)}</span>
+      .map((t) => {
+        const g = given[t.id] || 0;
+        const done = g === value ? "done" : g ? "part" : "";
+        return `<div class="qs big">
+        <span class="qs-name">${esc(t.name)}${g ? `<span class="qs-given ${done} ${g < 0 ? "neg" : ""}">${g > 0 ? "+" : ""}${g} this question</span>` : ""}</span>
         <span class="qs-score ${t.score < 0 ? "neg" : ""}">${t.score}</span>
-        <button class="btn good pts" data-add="${value}" data-id="${t.id}">+${value}</button>
-        <button class="btn bad pts" data-add="${-value}" data-id="${t.id}">−${value}</button>
-      </div>`
-      )
+        <button class="btn good pts" data-add="${STEP}" data-id="${t.id}">+${STEP}</button>
+        <button class="btn bad pts" data-add="${-STEP}" data-id="${t.id}">−${STEP}</button>
+      </div>`;
+      })
       .join("")}</div>`;
 }
+
+// ---------- Which sound plays for "wrong" and lost points ----------
+
+function wrongSound() {
+  try {
+    const k = localStorage.getItem(WRONG_KEY);
+    if (WRONG_SOUNDS.some(([id]) => id === k)) return k;
+  } catch (e) {}
+  return "buzzer";
+}
+
+function renderWrongPicker() {
+  const cur = wrongSound();
+  $("wrongPick").innerHTML = WRONG_SOUNDS.map(
+    ([id, label]) => `<button class="btn small ${id === cur ? "on" : ""}" data-wrong="${id}">${label}</button>`
+  ).join("");
+}
+
+$("wrongPick").onclick = (e) => {
+  const b = e.target.closest("[data-wrong]");
+  if (!b) return;
+  try {
+    localStorage.setItem(WRONG_KEY, b.dataset.wrong);
+  } catch (err) {}
+  Sfx.play(b.dataset.wrong); // a preview, on this device only
+  renderWrongPicker();
+  renderLive();
+};
 
 function renderLive() {
   const s = game.screen;
@@ -494,6 +532,9 @@ function boardControls(b) {
   </div>`;
 }
 
+// What's typed in each team's custom-points box, so it survives redraws.
+const customVals = {};
+
 function renderTeams() {
   $("teamCount").textContent = game.teams.length;
   const el = $("teams");
@@ -511,7 +552,7 @@ function renderTeams() {
       <input type="text" class="pname" data-id="${t.id}" value="${esc(t.name)}" />
       <div class="score ${t.score < 0 ? "neg" : ""}" data-id="${t.id}">${t.score}</div>
       <div class="acts">
-        <input type="number" inputmode="numeric" class="custom" data-id="${t.id}" placeholder="±" />
+        <input type="number" inputmode="numeric" class="custom" data-id="${t.id}" placeholder="±" value="${esc(customVals[t.id] || "")}" />
         <button class="btn small" data-custom="${t.id}">Add</button>
       </div>
     </div>`
@@ -590,12 +631,17 @@ function finishClue() {
   setScreen({ type: "board" });
 }
 
-function addScore(id, amount) {
+function addScore(id, amount, qid) {
   const t = game.teams.find((x) => x.id === id);
   if (!t || !amount) return;
   t.score += amount;
-  undoStack.push({ id, amount });
+  if (qid) {
+    const given = (game.screen.given = game.screen.given || {});
+    given[id] = (given[id] || 0) + amount;
+  }
+  undoStack.push({ id, amount, qid });
   commit();
+  sfx(amount > 0 ? "correct" : wrongSound());
 }
 
 function flipCoin(label) {
@@ -776,6 +822,8 @@ $("undo").onclick = () => {
   if (!last) return;
   const t = game.teams.find((x) => x.id === last.id);
   if (t) t.score -= last.amount;
+  const s = game.screen;
+  if (last.qid && s.qid === last.qid && s.given && s.given[last.id]) s.given[last.id] -= last.amount;
   commit();
 };
 
@@ -786,10 +834,7 @@ $("hboard").onclick = (e) => {
 
 function scoreClick(e) {
   const t = e.target;
-  if (t.dataset.add) {
-    addScore(t.dataset.id, Number(t.dataset.add));
-    sfx(Number(t.dataset.add) > 0 ? "correct" : "buzzer");
-  }
+  if (t.dataset.add) addScore(t.dataset.id, Number(t.dataset.add), game.screen.qid);
 }
 
 $("live").onclick = (e) => {
@@ -835,11 +880,11 @@ $("teams").onclick = (e) => {
   if (t.dataset.custom) {
     const input = document.querySelector(`.custom[data-id="${t.dataset.custom}"]`);
     addScore(t.dataset.custom, Number(input.value) || 0);
-    input.value = "";
   }
 };
 
 $("teams").addEventListener("input", (e) => {
+  if (e.target.classList.contains("custom")) customVals[e.target.dataset.id] = e.target.value;
   if (!e.target.classList.contains("pname")) return;
   const t = game.teams.find((x) => x.id === e.target.dataset.id);
   if (t) {
@@ -861,7 +906,7 @@ document.addEventListener("keydown", (e) => {
   if (e.target.matches("input, select, textarea")) return;
   if (introKey(e.key)) return e.preventDefault();
   const k = e.key.toLowerCase();
-  const keys = { d: "ding", c: "correct", x: "buzzer", s: "sad", a: "airhorn", b: "boom" };
+  const keys = { d: "ding", c: "correct", x: wrongSound(), s: "sad", a: "airhorn", b: "boom" };
   if (k === " ") {
     e.preventDefault();
     advance();
@@ -888,6 +933,7 @@ try {
   if (savedRoom) roomConnect(savedRoom);
 } catch (e) {}
 renderRoom();
+renderWrongPicker();
 
 // Before any question has been played, the TV opens on the about-me slides
 // instead of the title screen.

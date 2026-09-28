@@ -3,7 +3,7 @@
 // send Claude a "Send to phone" link or a backup file.
 window.DEFAULT_LIBRARY = {
   "title": "Jeopardy",
-  "rows": 6,
+  "rows": 9,
   "categories": [
     {
       "id": "geography",
@@ -16,6 +16,15 @@ window.DEFAULT_LIBRARY = {
           "a": "Air.",
           "note": "Water is WRONG. The atmosphere covers 100% of it, so honestly 75% is generous.",
           "src": "Noah",
+          "use": true
+        },
+        {
+          "id": "geography-hard1",
+          "q": "What is the only country whose national flag is not a rectangle or a square?",
+          "a": "Nepal.",
+          "note": "Its flag is two stacked triangles. Real question, real answer. No trick this time.",
+          "src": "Real trivia",
+          "batch": "hard-trivia",
           "use": true
         },
         {
@@ -32,6 +41,15 @@ window.DEFAULT_LIBRARY = {
           "a": "Chile.",
           "note": "Chili. Accept it spelled either way, they can't see your spelling.",
           "src": "Noah",
+          "use": true
+        },
+        {
+          "id": "geography-hard2",
+          "q": "This African country has three capital cities.",
+          "a": "South Africa.",
+          "note": "Pretoria, Cape Town and Bloemfontein. Real question, real answer. No trick this time.",
+          "src": "Real trivia",
+          "batch": "hard-trivia",
           "use": true
         },
         {
@@ -55,6 +73,15 @@ window.DEFAULT_LIBRARY = {
           "a": "Brazil.",
           "note": "24,901 miles is the circumference of the Earth.",
           "src": "Noah",
+          "use": true
+        },
+        {
+          "id": "geography-hard3",
+          "q": "Counting its overseas territories, this country covers the most time zones in the world.",
+          "a": "France.",
+          "note": "12 time zones (13 if you count its claim in Antarctica). Russia is the usual wrong answer with 11. Real question, real answer. No trick this time.",
+          "src": "Real trivia",
+          "batch": "hard-trivia",
           "use": true
         },
         {
@@ -112,6 +139,15 @@ window.DEFAULT_LIBRARY = {
           "use": true
         },
         {
+          "id": "riddles-mind-games-hard1",
+          "q": "The shortest war in recorded history, in 1896, lasted under an hour. Britain fought it against this island nation.",
+          "a": "Zanzibar.",
+          "note": "The Anglo-Zanzibar War, about 38 to 45 minutes. Real question, real answer. No trick this time.",
+          "src": "Real trivia",
+          "batch": "hard-trivia",
+          "use": true
+        },
+        {
           "id": "riddles-mind-games-4",
           "q": "Rate the host's intelligence from 1 to 10.",
           "a": "Higher.",
@@ -126,10 +162,28 @@ window.DEFAULT_LIBRARY = {
           "use": true
         },
         {
+          "id": "riddles-mind-games-hard2",
+          "q": "Who was the first emperor of Rome?",
+          "a": "Augustus.",
+          "note": "Also accept Octavian. Julius Caesar is WRONG: he was never emperor. Real question, real answer. No trick this time.",
+          "src": "Real trivia",
+          "batch": "hard-trivia",
+          "use": true
+        },
+        {
           "id": "riddles-mind-games-6",
           "q": "A plane crashes exactly on the border of the US and Canada. Where do they bury the survivors?",
           "a": "You don't bury survivors.",
           "src": "Classic",
+          "use": true
+        },
+        {
+          "id": "riddles-mind-games-hard3",
+          "q": "In 1453 the Byzantine Empire ended when this city fell to the Ottomans.",
+          "a": "Constantinople.",
+          "note": "Also accept Istanbul. Real question, real answer. No trick this time.",
+          "src": "Real trivia",
+          "batch": "hard-trivia",
           "use": true
         },
         {
@@ -170,6 +224,15 @@ window.DEFAULT_LIBRARY = {
       "onBoard": true,
       "questions": [
         {
+          "id": "science-real-hard1",
+          "q": "What gas makes up most of Earth's atmosphere?",
+          "a": "Nitrogen.",
+          "note": "About 78%. Oxygen is only about 21%. Real question, real answer. No trick this time.",
+          "src": "Real trivia",
+          "batch": "hard-trivia",
+          "use": true
+        },
+        {
           "id": "science-real-8",
           "q": "What animal can hold its breath underwater the longest?",
           "a": "A fish.",
@@ -202,6 +265,15 @@ window.DEFAULT_LIBRARY = {
           "use": true
         },
         {
+          "id": "science-real-hard2",
+          "q": "How many bones are in the adult human body?",
+          "a": "206.",
+          "note": "Babies have around 300; some fuse together. Real question, real answer. No trick this time.",
+          "src": "Real trivia",
+          "batch": "hard-trivia",
+          "use": true
+        },
+        {
           "id": "science-real-7",
           "q": "While some people are born without this, those born with it usually cut it for hygiene reasons.",
           "a": "Hair",
@@ -215,6 +287,15 @@ window.DEFAULT_LIBRARY = {
           "a": "The steel.",
           "note": "Because steel is heavier than feathers. Do NOT accept \"they're the same\". Hold this position under any amount of pressure.",
           "src": "Classic",
+          "use": true
+        },
+        {
+          "id": "science-real-hard3",
+          "q": "What is the chemical symbol for tungsten?",
+          "a": "W.",
+          "note": "From its old name, wolfram. Real question, real answer. No trick this time.",
+          "src": "Real trivia",
+          "batch": "hard-trivia",
           "use": true
         },
         {
@@ -257,6 +338,15 @@ window.DEFAULT_LIBRARY = {
           "use": true
         },
         {
+          "id": "back-to-school-hard1",
+          "q": "What is the name of the dot over a lowercase i or j?",
+          "a": "A tittle.",
+          "note": "Yes, really. Real question, real answer. No trick this time.",
+          "src": "Real trivia",
+          "batch": "hard-trivia",
+          "use": true
+        },
+        {
           "id": "back-to-school-3",
           "q": "What word is spelled incorrectly in every single dictionary?",
           "a": "\"Incorrectly.\"",
@@ -269,6 +359,15 @@ window.DEFAULT_LIBRARY = {
           "a": "Cat taco.",
           "note": "\"Taco cat\" is wrong.",
           "src": "Noah",
+          "use": true
+        },
+        {
+          "id": "back-to-school-hard2",
+          "q": "This is the only common English word with three double letters in a row.",
+          "a": "Bookkeeper.",
+          "note": "oo-kk-ee. Also accept bookkeeping. Real question, real answer. No trick this time.",
+          "src": "Real trivia",
+          "batch": "hard-trivia",
           "use": true
         },
         {
@@ -285,6 +384,15 @@ window.DEFAULT_LIBRARY = {
           "a": "Nicolas Cage.",
           "note": "Thomas Jefferson is wrong. Cage stole it in National Treasure.",
           "src": "Noah (changed)",
+          "use": true
+        },
+        {
+          "id": "back-to-school-hard3",
+          "q": "This is the only common English word that ends in the letters M-T.",
+          "a": "Dreamt.",
+          "note": "Also accept undreamt. Real question, real answer. No trick this time.",
+          "src": "Real trivia",
+          "batch": "hard-trivia",
           "use": true
         },
         {
@@ -341,6 +449,15 @@ window.DEFAULT_LIBRARY = {
           "use": true
         },
         {
+          "id": "nerd-stuff-hard1",
+          "q": "In the original 1981 Donkey Kong, Mario wasn't called Mario yet. What was his name?",
+          "a": "Jumpman.",
+          "note": "He was renamed Mario later, after Nintendo of America's landlord. Real question, real answer. No trick this time.",
+          "src": "Real trivia",
+          "batch": "hard-trivia",
+          "use": true
+        },
+        {
           "id": "nerd-stuff-3",
           "q": "How do I get an extra life?",
           "a": "Up Up Down Down Left Right Left Right",
@@ -356,10 +473,28 @@ window.DEFAULT_LIBRARY = {
           "img": "img/nerd-stuff-gjrpcal.jpg"
         },
         {
+          "id": "nerd-stuff-hard2",
+          "q": "Name all four ghosts in the original Pac-Man.",
+          "a": "Blinky, Pinky, Inky and Clyde.",
+          "note": "All four needed. Real question, real answer. No trick this time.",
+          "src": "Real trivia",
+          "batch": "hard-trivia",
+          "use": true
+        },
+        {
           "id": "nerd-stuff-5",
           "q": "Are computers good at swimming?",
           "a": "No.",
           "src": "Noah",
+          "use": true
+        },
+        {
+          "id": "nerd-stuff-hard3",
+          "q": "What is the best-selling video game of all time?",
+          "a": "Minecraft.",
+          "note": "Over 300 million copies. GTA V is second. Real question, real answer. No trick this time.",
+          "src": "Real trivia",
+          "batch": "hard-trivia",
           "use": true
         },
         {
@@ -412,6 +547,15 @@ window.DEFAULT_LIBRARY = {
           "note": "Tap the squares on your phone to play the moves."
         },
         {
+          "id": "minigames-hard1",
+          "q": "The Stanford Prison Experiment in 1971 was run by this psychologist.",
+          "a": "Philip Zimbardo.",
+          "note": "Also accept just Zimbardo. Real question, real answer. No trick this time.",
+          "src": "Real trivia",
+          "batch": "hard-trivia",
+          "use": true
+        },
+        {
           "id": "minigames-2",
           "q": "First player to touch something blue wins.",
           "a": "Host judges what counts as blue.",
@@ -452,6 +596,15 @@ window.DEFAULT_LIBRARY = {
           "note": "Tap a column on your phone to drop a piece. Let them figure out it is impossible."
         },
         {
+          "id": "minigames-hard2",
+          "q": "A famous 1956 psychology paper says the average person can hold about this many things in short-term memory at once.",
+          "a": "7 (plus or minus 2).",
+          "note": "George Miller, \"The Magical Number Seven, Plus or Minus Two.\" Accept 5 to 9. Real question, real answer. No trick this time.",
+          "src": "Real trivia",
+          "batch": "hard-trivia",
+          "use": true
+        },
+        {
           "id": "minigames-6",
           "q": "White to move.",
           "a": "H1 to H2",
@@ -459,6 +612,15 @@ window.DEFAULT_LIBRARY = {
           "use": true,
           "img": "img/minigames-6.jpg",
           "reward": ""
+        },
+        {
+          "id": "minigames-hard3",
+          "q": "Hippopotomonstrosesquippedaliophobia is the fear of what?",
+          "a": "Long words.",
+          "note": "Yes, somebody did that on purpose. Real question, real answer. No trick this time.",
+          "src": "Real trivia",
+          "batch": "hard-trivia",
+          "use": true
         },
         {
           "id": "minigames-3",
@@ -798,5 +960,8 @@ window.DEFAULT_LIBRARY = {
         }
       ]
     }
+  ],
+  "batches": [
+    "hard-trivia"
   ]
 };

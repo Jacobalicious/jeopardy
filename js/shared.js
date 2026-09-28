@@ -85,9 +85,39 @@ function saveTheme(id) {
 function loadLibrary() {
   try {
     const raw = localStorage.getItem(LIB_KEY);
-    if (raw) return JSON.parse(raw);
+    if (raw) return addNewDefaults(JSON.parse(raw));
   } catch (e) {}
   return JSON.parse(JSON.stringify(window.DEFAULT_LIBRARY));
+}
+
+// Questions added to the built-in set later carry a "batch" name. A device
+// with its own saved edits gets each batch slotted in once, in the same spot
+// as in the built-in set, without touching anything else.
+const LIBRARY_BATCHES = { "hard-trivia": { rows: 9 } };
+
+function addNewDefaults(lib) {
+  lib.batches = lib.batches || [];
+  let changed = false;
+  Object.keys(LIBRARY_BATCHES).forEach((batch) => {
+    if (lib.batches.includes(batch)) return;
+    window.DEFAULT_LIBRARY.categories.forEach((dc) => {
+      const cat = lib.categories.find((c) => c.id === dc.id);
+      if (!cat) return;
+      dc.questions.forEach((q, i) => {
+        if (q.batch !== batch || cat.questions.some((x) => x.id === q.id)) return;
+        const before = dc.questions[i - 1];
+        let at = before ? cat.questions.findIndex((x) => x.id === before.id) + 1 : 0;
+        if (before && at === 0) at = cat.questions.length; // neighbour was deleted: put it at the end
+        cat.questions.splice(at, 0, JSON.parse(JSON.stringify(q)));
+      });
+    });
+    const rows = LIBRARY_BATCHES[batch].rows;
+    if (rows && rowsOf(lib) < rows) lib.rows = rows;
+    lib.batches.push(batch);
+    changed = true;
+  });
+  if (changed) saveLibrary(lib);
+  return lib;
 }
 
 // Returns false if the browser refused (usually: too many pictures).
@@ -416,6 +446,52 @@ const Sfx = (() => {
     whoosh() {
       noise(0, 0.45, { from: 400, to: 2800, q: 1.5, vol: 0.15, attack: 0.15 });
     },
+    // ---- Other "wrong" sounds (pick one on the host under Sounds) ----
+    bonk() {
+      voice(210, 0, 0.22, { type: "triangle", vol: 0.5, slideTo: 90, attack: 0.002 });
+      voice(420, 0, 0.08, { type: "square", vol: 0.08, slideTo: 200, filter: { freq: 1200 } });
+      noise(0, 0.04, { type: "lowpass", freq: 1800, vol: 0.35 });
+    },
+    wahwah() {
+      // Short "wah wah wahhh" on a muted trumpet.
+      [
+        [64, 0, 0.28],
+        [63, 0.32, 0.28],
+        [62, 0.64, 0.9],
+      ].forEach(([n, s, d], i) =>
+        voice(midi(n), s, d, {
+          type: "sawtooth",
+          vol: 0.22,
+          attack: 0.03,
+          slideTo: i === 2 ? midi(n - 1) : null,
+          vibrato: i === 2 ? [6, 6] : null,
+          filter: { from: 300, to: 1500, at: 0.4, q: 5 },
+        })
+      );
+    },
+    slide() {
+      voice(1500, 0, 0.75, { vol: 0.2, slideTo: 260, vibrato: [7, 25] });
+      voice(3000, 0, 0.75, { vol: 0.03, slideTo: 520 });
+    },
+    errorbeep() {
+      voice(440, 0, 0.16, { type: "square", vol: 0.12, filter: { freq: 2400 } });
+      voice(294, 0.19, 0.38, { type: "square", vol: 0.12, filter: { freq: 2400 } });
+    },
+    honk() {
+      [0, 0.26].forEach((s) => {
+        voice(330, s, 0.2, { type: "sawtooth", vol: 0.16, slideTo: 300, filter: { type: "bandpass", freq: 900, q: 2 } });
+        voice(337, s, 0.2, { type: "sawtooth", vol: 0.16, slideTo: 305, filter: { type: "bandpass", freq: 900, q: 2 } });
+      });
+    },
+    scratch() {
+      noise(0, 0.12, { from: 600, to: 3200, q: 3, vol: 0.4 });
+      noise(0.12, 0.18, { from: 3200, to: 400, q: 3, vol: 0.4 });
+      voice(180, 0.3, 0.25, { vol: 0.25, slideTo: 60 });
+    },
+    coinloss() {
+      // Arcade "you dropped your coins": blips tumbling down.
+      [84, 79, 76, 72, 67, 60].forEach((n, i) => voice(midi(n), i * 0.07, 0.1, { type: "square", vol: 0.1, filter: { freq: 3500 } }));
+    },
     think() {
       startMusic();
     },
@@ -553,4 +629,17 @@ const SOUND_BUTTONS = [
   ["drumroll", "Drumroll"],
   ["think", "Think music"],
   ["stopmusic", "Stop music"],
+];
+
+// Choices for the sound that plays on Wrong and on every point taken away.
+const WRONG_KEY = "jeopardy-wrong-sound";
+const WRONG_SOUNDS = [
+  ["buzzer", "Buzzer"],
+  ["bonk", "Bonk"],
+  ["wahwah", "Wah wah"],
+  ["slide", "Slide whistle"],
+  ["errorbeep", "Error beep"],
+  ["honk", "Clown honk"],
+  ["scratch", "Record scratch"],
+  ["coinloss", "Coins lost"],
 ];

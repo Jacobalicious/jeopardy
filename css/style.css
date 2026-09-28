@@ -1617,3 +1617,36 @@ body.tv .start-overlay .room-big b,
   letter-spacing: 0.3em;
   text-shadow: none;
 }
+
+/* Wrong-sound picker and the +100 tap tally */
+
+.sub-h {
+  margin: 16px 0 4px;
+  font-family: var(--f-head);
+  font-size: 15px;
+}
+
+.wrong-pick .btn.on {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 2px var(--gold);
+  color: var(--gold);
+}
+
+.tap-hint {
+  margin-bottom: 4px;
+}
+
+.qs-given {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.qs-given.done {
+  color: var(--green);
+}
+
+.qs-given.neg {
+  color: var(--red);
+}
