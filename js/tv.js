@@ -19,6 +19,9 @@ const imgParts = {}; // pictures arriving over Chromecast in pieces
 const imgs = {};
 let anim = null;
 let introTimers = []; // pending falling letters / sounds on the about-me slides
+let castContext = null;
+let tvRelay = null;
+const askedAt = {}; // picture id -> when we last asked the host for it
 
 const main = document.getElementById("main");
 const scoresEl = document.getElementById("scores");
@@ -56,7 +59,7 @@ if (DEMO) {
   const s = document.createElement("script");
   s.src = "https://www.gstatic.com/cast/sdk/libs/caf_receiver/v3/cast_receiver_framework.js";
   s.onload = () => {
-    const context = cast.framework.CastReceiverContext.getInstance();
+    const context = (castContext = cast.framework.CastReceiverContext.getInstance());
     context.addCustomMessageListener(window.CAST_NS, (e) => {
       const data = typeof e.data === "string" ? JSON.parse(e.data) : e.data;
       handle(data);
@@ -64,6 +67,12 @@ if (DEMO) {
     const opts = new cast.framework.CastReceiverOptions();
     opts.disableIdleTimeout = true; // there's no video, so don't shut down after 5 minutes
     opts.customNamespaces = { [window.CAST_NS]: cast.framework.system.MessageType.JSON };
+    // A phone that (re)connects gets everything sent again, pictures included.
+    context.addEventListener(cast.framework.system.EventType.SENDER_CONNECTED, (e) => {
+      try {
+        context.sendCustomMessage(window.CAST_NS, e.senderId, { t: "hello" });
+      } catch (err) {}
+    });
     context.start(opts);
   };
   document.head.appendChild(s);
@@ -101,7 +110,7 @@ function startRoom() {
   try {
     localStorage.setItem("jeopardy-tv-room", roomCode);
   } catch (e) {}
-  const relay = Relay(roomCode, {
+  const relay = (tvRelay = Relay(roomCode, {
     subscribe: ["view", "event"],
     onMessage: (suffix, data) => {
       if (data.t === "ping") relay.send("hello", { t: "hello" });
@@ -112,8 +121,26 @@ function startRoom() {
       if (up) relay.send("hello", { t: "hello" });
       showRoomCode();
     },
-  });
+  }));
   showRoomCode();
+}
+
+// Pictures arrive in pieces. If this screen was reloaded, or a piece got
+// lost, ask the host to send the picture again (every few seconds until it's here).
+function askForImg(id) {
+  if (imgs[id] || (askedAt[id] && Date.now() - askedAt[id] < 3000)) return;
+  askedAt[id] = Date.now();
+  const msg = { t: "needimg", id };
+  if (castContext) {
+    try {
+      castContext.sendCustomMessage(window.CAST_NS, undefined, msg);
+    } catch (e) {}
+  }
+  if (tvRelay) tvRelay.send("hello", msg);
+  setTimeout(() => {
+    const cur = view && view.screen && view.screen.img;
+    if (!imgs[id] && cur === "cast:" + id) askForImg(id);
+  }, 3100);
 }
 
 function showRoomCode() {
@@ -200,6 +227,7 @@ function clue(s) {
   let pic = "";
   if (s.img) {
     const src = s.img.startsWith("cast:") ? imgs[s.img.slice(5)] : s.img;
+    if (!src) setTimeout(() => askForImg(s.img.slice(5)), 1500);
     pic = src ? `<img class="qimg" src="${esc(src)}" alt="" />` : `<div class="img-wait">Loading picture...</div>`;
   }
   let html = `<div class="clue ${s.img || s.board ? "has-img" : ""}">

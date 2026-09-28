@@ -36,7 +36,7 @@ window.DEFAULT_LIBRARY = {
         },
         {
           "id": "geography-7ykt978",
-          "q": "Play the Rock Paper Scissors with someone on your team",
+          "q": "Play Rock Paper Scissors with someone on your team",
           "a": "You Lost",
           "use": true
         },
@@ -152,7 +152,7 @@ window.DEFAULT_LIBRARY = {
         },
         {
           "id": "riddles-mind-games-8rvdydl",
-          "q": "First to touch something yellow",
+          "q": "First Person to touch something yellow",
           "a": "Nice",
           "use": true
         },

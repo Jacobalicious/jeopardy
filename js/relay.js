@@ -24,12 +24,59 @@ function cleanRoomCode(s) {
 }
 
 // Relay(code, { subscribe: [suffixes], onMessage(suffix, data), onStatus(connected) })
+//
+// Talks through every relay in RELAY_BROKERS at once. (Using just one, with
+// the other as a backup, let the host and the TV end up on different relays
+// and never hear each other.) Messages that arrive through both are only
+// passed on once. onStatus runs every time any relay connects or drops, so
+// both ends can say hello again on the relay that just came up.
 function Relay(code, opts) {
+  const base = RELAY_ROOT + code + "/";
+  const seen = [];
+  let closed = false;
+
+  function onMessage(suffix, data) {
+    if (data && data._m) {
+      if (seen.includes(data._m)) return;
+      seen.push(data._m);
+      if (seen.length > 300) seen.shift();
+    }
+    opts.onMessage(suffix, data);
+  }
+
+  const links = RELAY_BROKERS.map((url) =>
+    RelayLink(url, base, opts.subscribe || [], onMessage, () => {
+      if (!closed && opts.onStatus) opts.onStatus(isConnected());
+    })
+  );
+
+  function isConnected() {
+    return links.some((l) => l.connected());
+  }
+
+  function send(suffix, data, retain) {
+    const msg = Object.assign({}, data, { _m: Math.random().toString(36).slice(2, 11) });
+    let ok = false;
+    links.forEach((l) => (ok = l.send(suffix, msg, retain) || ok));
+    return ok;
+  }
+
+  return {
+    code,
+    send,
+    isConnected,
+    close() {
+      closed = true;
+      links.forEach((l) => l.close());
+    },
+  };
+}
+
+// One connection to one relay, reconnecting on its own if it drops.
+function RelayLink(url, base, subscribe, onMessage, onChange) {
   const enc = new TextEncoder();
   const dec = new TextDecoder();
-  const base = RELAY_ROOT + code + "/";
   let ws = null;
-  let broker = 0;
   let pinger = null;
   let closed = false;
   let connected = false;
@@ -65,19 +112,22 @@ function Relay(code, opts) {
   function setConnected(v) {
     if (connected === v) return;
     connected = v;
-    if (opts.onStatus) opts.onStatus(v);
+    onChange();
   }
 
   function open() {
     if (closed) return;
     try {
-      ws = new WebSocket(RELAY_BROKERS[broker], "mqtt");
+      ws = new WebSocket(url, "mqtt");
     } catch (e) {
       return retry();
     }
+    const me = ws;
     ws.binaryType = "arraybuffer";
+    pending = new Uint8Array(0);
+    // Some relays accept the connection and then never answer. Give up and retry.
     const giveUp = setTimeout(() => {
-      if (!connected && ws) ws.close();
+      if (!connected && me === ws) me.close();
     }, 6000);
     ws.onopen = () => {
       const clientId = "jp-" + Math.random().toString(36).slice(2, 12);
@@ -94,9 +144,8 @@ function Relay(code, opts) {
     ws.onclose = () => {
       clearTimeout(giveUp);
       clearInterval(pinger);
-      const was = connected;
+      if (me !== ws) return;
       setConnected(false);
-      if (!was) broker = (broker + 1) % RELAY_BROKERS.length; // try the other relay
       retry();
     };
     ws.onerror = () => {};
@@ -135,7 +184,7 @@ function Relay(code, opts) {
   function onConnack(body) {
     if (body[1] !== 0) return ws.close();
     retryMs = 1000;
-    (opts.subscribe || []).forEach((suffix) => {
+    subscribe.forEach((suffix) => {
       const id = packetId++ & 0xffff || 1;
       raw(packet(0x82, [id >> 8, id & 255, ...str(base + suffix), 0]));
     });
@@ -151,7 +200,7 @@ function Relay(code, opts) {
     const text = dec.decode(body.subarray(p));
     if (!text || !topic.startsWith(base)) return;
     try {
-      opts.onMessage(topic.slice(base.length), JSON.parse(text));
+      onMessage(topic.slice(base.length), JSON.parse(text));
     } catch (e) {}
   }
 
@@ -168,9 +217,8 @@ function Relay(code, opts) {
 
   open();
   return {
-    code,
     send,
-    isConnected: () => connected,
+    connected: () => connected,
     close() {
       closed = true;
       clearInterval(pinger);

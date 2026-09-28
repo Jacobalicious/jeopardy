@@ -75,6 +75,18 @@ function castStatus(text) {
 function castStarted(session) {
   Cast.s = session;
   castImgs.clear();
+  // The TV says hello when it (re)loads, and asks for pictures it's missing.
+  session.addMessageListener(window.CAST_NS, (ns, text) => {
+    let msg = text;
+    try {
+      if (typeof text === "string") msg = JSON.parse(text);
+    } catch (e) {
+      return;
+    }
+    if (msg.t === "hello") castImgs.clear();
+    if (msg.t === "needimg") castImgs.delete(msg.id);
+    sendView();
+  });
   session.addUpdateListener((alive) => {
     if (!alive) {
       Cast.s = null;
@@ -176,10 +188,10 @@ function roomConnect(code) {
   } catch (e) {}
   room = Relay(code, {
     subscribe: ["hello"],
-    onMessage: () => {
-      // The TV just opened or reconnected: send it everything again.
+    onMessage: (suffix, msg) => {
       roomTvSeen = true;
-      roomImgs.clear();
+      if (msg && msg.t === "needimg") roomImgs.delete(msg.id);
+      else roomImgs.clear(); // the TV just opened or reconnected: send it everything again
       sendView();
       renderRoom();
     },
