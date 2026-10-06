@@ -107,7 +107,7 @@ function withPicLists(lib) {
 // Questions added to the built-in set later carry a "batch" name. A device
 // with its own saved edits gets each batch slotted in once, in the same spot
 // as in the built-in set, without touching anything else.
-const LIBRARY_BATCHES = { "hard-trivia": { rows: 9 } };
+const LIBRARY_BATCHES = { "hard-trivia": { rows: 9 }, "backups-1": {} };
 
 // A picture uploaded on a phone lives inside the saved questions and has to
 // be sent to the TV in pieces, which Chromecast can drop. Once that picture

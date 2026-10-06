@@ -333,6 +333,15 @@ window.DEFAULT_LIBRARY = {
           "note": "A completely real question. The panic is the point.",
           "src": "Ours",
           "use": false
+        },
+        {
+          "id": "science-real-dirt",
+          "q": "How much dirt is in a hole 3 ft × 3 ft × 3 ft?",
+          "a": "None, it's a hole.",
+          "note": "Let them do the math first. 27 cubic feet is wrong.",
+          "src": "Classic",
+          "batch": "backups-1",
+          "use": false
         }
       ]
     },
@@ -1009,6 +1018,7 @@ window.DEFAULT_LIBRARY = {
     }
   ],
   "batches": [
-    "hard-trivia"
+    "hard-trivia",
+    "backups-1"
   ]
 };
