@@ -136,12 +136,11 @@ window.DEFAULT_LIBRARY = {
           "use": true
         },
         {
-          "id": "riddles-mind-games-hard2",
-          "q": "Who was the first emperor of Rome?",
-          "a": "Augustus.",
-          "note": "Also accept Octavian. Julius Caesar is WRONG: he was never emperor. Real question, real answer. No trick this time.",
-          "src": "Real trivia",
-          "batch": "hard-trivia",
+          "id": "riddles-mind-games-5",
+          "q": "How many animals of each kind did Moses take on the ark?",
+          "a": "Zero. It was Noah.",
+          "note": "Two is wrong. Fitting, given who we stole this game from.",
+          "src": "Classic",
           "use": true
         },
         {
@@ -157,11 +156,12 @@ window.DEFAULT_LIBRARY = {
           "use": true
         },
         {
-          "id": "riddles-mind-games-5",
-          "q": "How many animals of each kind did Moses take on the ark?",
-          "a": "Zero. It was Noah.",
-          "note": "Two is wrong. Fitting, given who we stole this game from.",
-          "src": "Classic",
+          "id": "riddles-mind-games-hard2",
+          "q": "Who was the first emperor of Rome?",
+          "a": "Augustus.",
+          "note": "Also accept Octavian. Julius Caesar is WRONG: he was never emperor. Real question, real answer. No trick this time.",
+          "src": "Real trivia",
+          "batch": "hard-trivia",
           "use": false
         },
         {
@@ -358,10 +358,10 @@ window.DEFAULT_LIBRARY = {
           "use": true
         },
         {
-          "id": "back-to-school-hard3",
-          "q": "This is the only common English word that ends in the letters M-T.",
-          "a": "Dreamt.",
-          "note": "Also accept undreamt. Real question, real answer. No trick this time.",
+          "id": "back-to-school-hard1",
+          "q": "What is the name of the dot over a lowercase i or j?",
+          "a": "A tittle.",
+          "note": "Yes, really. Real question, real answer. No trick this time.",
           "src": "Real trivia",
           "batch": "hard-trivia",
           "use": true
@@ -389,12 +389,19 @@ window.DEFAULT_LIBRARY = {
           "use": true
         },
         {
-          "id": "back-to-school-hard1",
-          "q": "What is the name of the dot over a lowercase i or j?",
-          "a": "A tittle.",
-          "note": "Yes, really. Real question, real answer. No trick this time.",
+          "id": "back-to-school-hard3",
+          "q": "This is the only common English word that ends in the letters M-T.",
+          "a": "Dreamt.",
+          "note": "Also accept undreamt. Real question, real answer. No trick this time.",
           "src": "Real trivia",
           "batch": "hard-trivia",
+          "use": false
+        },
+        {
+          "id": "back-to-school-5",
+          "q": "What five-letter word becomes shorter when you add two letters to it?",
+          "a": "\"Short.\" (Shorter.)",
+          "src": "Classic",
           "use": false
         },
         {
@@ -411,13 +418,6 @@ window.DEFAULT_LIBRARY = {
           "a": "Cat taco.",
           "note": "\"Taco cat\" is wrong.",
           "src": "Noah",
-          "use": false
-        },
-        {
-          "id": "back-to-school-5",
-          "q": "What five-letter word becomes shorter when you add two letters to it?",
-          "a": "\"Short.\" (Shorter.)",
-          "src": "Classic",
           "use": false
         },
         {

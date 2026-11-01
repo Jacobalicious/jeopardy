@@ -574,8 +574,9 @@ function renderTeams() {
       <input type="text" class="pname" data-id="${t.id}" value="${esc(t.name)}" />
       <div class="score ${t.score < 0 ? "neg" : ""}" data-id="${t.id}">${t.score}</div>
       <div class="acts">
-        <input type="number" inputmode="numeric" class="custom" data-id="${t.id}" placeholder="±" value="${esc(customVals[t.id] || "")}" />
+        <input type="number" inputmode="numeric" class="custom" data-id="${t.id}" placeholder="±" value="${esc(customVals[t.id] ?? "100")}" />
         <button class="btn small" data-custom="${t.id}">Add</button>
+        <button class="btn small" data-minus="${t.id}">Minus</button>
       </div>
     </div>`
     )
@@ -901,7 +902,11 @@ $("teams").onclick = (e) => {
   const t = e.target;
   if (t.dataset.custom) {
     const input = document.querySelector(`.custom[data-id="${t.dataset.custom}"]`);
-    addScore(t.dataset.custom, Number(input.value) || 0);
+    addScore(t.dataset.custom, Math.abs(Number(input.value)) || 0);
+  }
+  if (t.dataset.minus) {
+    const input = document.querySelector(`.custom[data-id="${t.dataset.minus}"]`);
+    addScore(t.dataset.minus, -Math.abs(Number(input.value)) || 0);
   }
 };
 
