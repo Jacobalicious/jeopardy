@@ -358,6 +358,14 @@ window.DEFAULT_LIBRARY = {
           "use": true
         },
         {
+          "id": "back-to-school-2",
+          "q": "Spell Onomatopeia",
+          "a": "Onomatop\"O\"eia",
+          "src": "Classic",
+          "use": true,
+          "note": "Remember: they have to say the O"
+        },
+        {
           "id": "back-to-school-hard1",
           "q": "What is the name of the dot over a lowercase i or j?",
           "a": "A tittle.",
@@ -367,17 +375,17 @@ window.DEFAULT_LIBRARY = {
           "use": true
         },
         {
-          "id": "back-to-school-2",
-          "q": "Spell Onomatopeia",
-          "a": "Onomatop\"O\"eia",
-          "src": "Classic",
-          "use": true,
-          "note": "Remember: they have to say the O"
-        },
-        {
           "id": "back-to-school-97qi5q4",
           "q": "A neurological and neuropsychological phenomenon characterized by an intense, persistent, and erroneous sensation that an entirely FALSE present experience has been completely lived through or experienced before",
           "a": "Déjà Vu",
+          "use": true
+        },
+        {
+          "id": "back-to-school-1",
+          "q": "How many letters are in the alphabet?",
+          "a": "11.",
+          "note": "T-H-E A-L-P-H-A-B-E-T. 26 is wrong.",
+          "src": "Classic",
           "use": true
         },
         {
@@ -386,7 +394,7 @@ window.DEFAULT_LIBRARY = {
           "a": "Nicolas Cage.",
           "note": "Thomas Jefferson is wrong. Cage stole it in National Treasure.",
           "src": "Noah (changed)",
-          "use": true
+          "use": false
         },
         {
           "id": "back-to-school-hard3",
@@ -401,14 +409,6 @@ window.DEFAULT_LIBRARY = {
           "id": "back-to-school-5",
           "q": "What five-letter word becomes shorter when you add two letters to it?",
           "a": "\"Short.\" (Shorter.)",
-          "src": "Classic",
-          "use": false
-        },
-        {
-          "id": "back-to-school-1",
-          "q": "How many letters are in the alphabet?",
-          "a": "11.",
-          "note": "T-H-E A-L-P-H-A-B-E-T. 26 is wrong.",
           "src": "Classic",
           "use": false
         },
